@@ -23,7 +23,7 @@ const SignupScreen = ()=>{
         setIsLoadingSignup(true);
 
         try {
-          const res = await axios.post('http://192.168.8.234/textiepro/apis/index.php', {
+          const res = await axios.post('http://192.168.141.234/textiepro/apis/index.php', {
             email: email,
             phone : phone_number,
             username : username,

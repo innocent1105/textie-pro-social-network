@@ -38,7 +38,7 @@ const OpenPostScreen = ({ route })=>{
 
 
 
-    let server_api_base_url = "http://192.168.13.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
     let uri = server_api_base_url + "profile_pictures/default-pp.png";
     const getToken = async () => {
         try {
@@ -146,7 +146,7 @@ const OpenPostScreen = ({ route })=>{
                           <Entypo name="chevron-left" size={24} color="black" />
                       </TouchableOpacity>
                       <View className ="w-1/2">
-                          <Text className =" text-2xl font-bold">Secret Code</Text>
+                          <Text className =" text-2xl font-bold">Post</Text>
                       </View>
                       <View className ="  w-1/2 flex flex-row pr-5 justify-end">
                       
@@ -159,7 +159,7 @@ const OpenPostScreen = ({ route })=>{
                           <Entypo name="chevron-left" size={24} color="black" />
                       </TouchableOpacity>
                       <View className ="w-1/2">
-                          <Text className =" text-2xl font-bold">Secret Code</Text>
+                          <Text className =" text-2xl font-bold">Post</Text>
                       </View>
                       <View className ="  w-1/2 flex flex-row pr-5 justify-end">
                        
@@ -216,41 +216,86 @@ const OpenPostScreen = ({ route })=>{
                   </View>
 
 
-                  <View className =" flex flex-row justify-between border-b  border-gray-300 pb-2 px-2">
-                    <View className ="mt-4 pt-2 px-2 flex flex-row justify-start gap-7">
-
-                      <TouchableOpacity onPress={() => likePost(postId)} className =" rounded-full flex flex-row justify-center ml-2">
-                        { like ? (
-                          <MaterialCommunityIcons name="heart" size={24} color="#4169E1" />
-                        ) : (
-                          <View>
-                            <MaterialCommunityIcons name="heart-outline" size={24} color="#4169E1" />
-                          </View>
-                        )}
-                        
-                        <Text style ={ styles.post_stat_heart } className =" text-sm font-bold p-1 text-skyblue-700">{postLikes}</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity onPress={() => goToUploads()} className =" rounded-full flex flex-row justify-center ml-2">
-                        <MaterialCommunityIcons name="comment-processing-outline" size={24} color="#0039a6" />
-                        <Text className =" text-sm font-bold p-1 text-indigo-700">276</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => goToUploads()} className =" rounded-full flex flex-row justify-center ml-2">
-                        <AntDesign name="retweet" size={22} color="#72A0C1" />
-                      </TouchableOpacity>
-                    </View>
-
-                    <View className =" mt-4 pt-4 px-2 flex flex-row justify-start gap-7">
-                   
-                      <View className =" rounded-full flex flex-row justify-center ml-2">
-                        <Entypo name="link" size={20} color="#72A0C1" />
-                      </View>
-                    </View>
-                  </View>
-
-                  <View className="mb-40 mt-4">
+                  <View className="mb-40 mt-2">
                     { loadingComments ? (
-                      <View><Text className =" text-blue-500 font-bold text-sm text-center">Loading comments...</Text></View>
+                      <View>
+                        <View className=" py-4">
+                          <ActivityIndicator color={"#808080"}></ActivityIndicator>
+                        </View>
+                        <View className=" m-2 px-2">
+                          <View className =" flex flex-row justify-between">
+                              <View  className = " flex gap-2 flex-row w-3/5 ">
+                                  <View className=" w-8 h-8 bg-gray-200 rounded-full">
+                                  </View>
+                                  <View className =" w-full h-11 overflow-hidden">
+                                      <View className=" p-2 bg-gray-200 rounded w-4/5"></View>
+                                      <View className=" p-1 mt-1 bg-gray-200 rounded w-3/5"></View>
+                                  </View>
+                              </View>
+                              
+                          </View>
+                      
+
+                          <View className =" mb-2 ">
+                            <View className=" p-5 bg-gray-200 rounded w-full"></View>
+                          </View>
+                          <View className=" flex flex-row gap-2">
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                          </View>
+                        </View>
+
+                        <View className=" m-2 px-2">
+                          <View className =" flex flex-row justify-between">
+                              <View  className = " flex gap-2 flex-row w-3/5 ">
+                                  <View className=" w-8 h-8 bg-gray-200 rounded-full">
+                                  </View>
+                                  <View className =" w-full h-11 overflow-hidden">
+                                      <View className=" p-2 bg-gray-200 rounded w-4/5"></View>
+                                      <View className=" p-1 mt-1 bg-gray-200 rounded w-3/5"></View>
+                                  </View>
+                              </View>
+                              
+                          </View>
+                      
+
+                          <View className =" mb-2 ">
+                            <View className=" p-5 bg-gray-200 rounded w-full"></View>
+                          </View>
+                          <View className=" flex flex-row gap-2">
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                          </View>
+                        </View>
+
+                        <View className=" m-2 px-2">
+                          <View className =" flex flex-row justify-between">
+                              <View  className = " flex gap-2 flex-row w-3/5 ">
+                                  <View className=" w-8 h-8 bg-gray-200 rounded-full">
+                                  </View>
+                                  <View className =" w-full h-11 overflow-hidden">
+                                      <View className=" p-2 bg-gray-200 rounded w-4/5"></View>
+                                      <View className=" p-1 mt-1 bg-gray-200 rounded w-3/5"></View>
+                                  </View>
+                              </View>
+                              
+                          </View>
+                      
+
+                          <View className =" mb-2 ">
+                            <View className=" p-5 bg-gray-200 rounded w-full"></View>
+                          </View>
+                          <View className=" flex flex-row gap-2">
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                            <View className=" p-2 px-4 bg-gray-200 rounded "></View>
+                          </View>
+                        </View>
+
+                        
+                      </View>
                     ) : (
                       <View className=" m-2 px-2">
                         <View className =" flex flex-row justify-between">

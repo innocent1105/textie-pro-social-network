@@ -38,7 +38,7 @@ const vibrate = (x) => {
     Vibration.vibrate(x); // vibrates for 100ms
 };
 
-const AgeRange = () => {
+const SetAgeRange = () => {
   const navigation = useNavigation();
 
   const [isLoggedIn, setIsLoggedIn] = useState(null); 
@@ -136,7 +136,7 @@ const saveAge = async () => {
   }
 
   try{
-    const res = await axios.post(server_api_base_url + "age_range.php", {
+    const res = await axios.post(server_api_base_url + "set_age_range.php", {
       user_id: user_id,
       age_range: AgeRange,
     });
@@ -173,14 +173,17 @@ const saveAge = async () => {
 
         <View className="mt-28">
           <Text className="text-5xl font-semibold text-white p-4">
-            What is your preferred age range?
+            What is your age range?
           </Text>
-          <Text className="text-xl font-semibold text-white px-4 pt-0 pb-4">
-            Select any age range by sliding, then click to pick!🤗
+          <Text className="text-xl font-semibold text-white px-4 pt-0 ">
+            Select your age range by sliding, then click to pick!🤗
+          </Text>
+          <Text className="text-xs text-gray-400 px-4 pr-24 pt-2 pb-4">
+            Due to Privacy, we only request you to provide the range of your age.
+            To View all Privacy terms, click here.
           </Text>
         </View>
 
-        {/* 👉 Carousel here */}
         <View style={{ marginTop: 20, height: PAGE_WIDTH }}>
           <Carousel
             className = " h-96"
@@ -239,4 +242,4 @@ const saveAge = async () => {
   );
 };
 
-export default AgeRange;
+export default SetAgeRange;

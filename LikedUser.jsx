@@ -21,6 +21,11 @@ const LikedUserScreen = ({ route })=>{
     const likedUserImage = User.image;
     const likedUserId = User.id;
 
+    const getUserDetails = async ()=>{
+        const res = await axios.post(getPostsUrl, {
+            user_id : likedUserId 
+        });
+    }
     
 
 
@@ -30,7 +35,7 @@ const LikedUserScreen = ({ route })=>{
     const [isLoggedIn, setIsLoggedIn] = useState(null); 
     const [user_id , setUserId] = useState(null);
 
-    let server_api_base_url = "http://192.168.8.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
@@ -175,13 +180,6 @@ const LikedUserScreen = ({ route })=>{
                             <Text className =" font-bold text-sm text-center text-blue-950">23 years - Lives in Lusaka</Text>
                         </View>
                         <View className =" flex flex-row justify-center gap-8 p-2 ">
-                            {/* <TouchableOpacity className=" p-2" onPress={()=> {}}>
-                                <Text className =" font-bold text-blue-950">Follow </Text>
-                            </TouchableOpacity> */}
-                            {/* <TouchableOpacity className =" border border-gray-200 p-2 px-10 bg-white rounded-md" onPress={()=> {}}>
-                                <Text className =" font-bold text-blue-950">Message</Text>
-                            </TouchableOpacity> */}
-
                             <TouchableOpacity className=" p-2" onPress={()=> {}}>
                                 <Text className =" font-bold text-blue-950">Follow</Text>
                             </TouchableOpacity> 

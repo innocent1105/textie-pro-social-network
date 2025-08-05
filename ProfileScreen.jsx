@@ -11,6 +11,9 @@ import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RefreshControl } from 'react-native';
 
 const HomeScreen = ()=>{
 
@@ -18,7 +21,7 @@ const HomeScreen = ()=>{
     const [isLoggedIn, setIsLoggedIn] = useState(null); 
     const [user_id , setUserId] = useState(null);
 
-    let server_api_base_url = "http://192.168.8.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
@@ -64,29 +67,62 @@ const HomeScreen = ()=>{
     const [fetchingData , setFetchData] = useState(true);
     const [myData, setMyData] = useState([]);
    
+    const [refreshing, setRefreshing] = useState(false);
 
 
     const getUserData = async () => {
-        const res = await axios.post(`${server_api_base_url}edit_profile.php`, {
-          user_id: user_id, 
-          request_type : "getUserData"
-        });
-        const data = res.data[0];
+        try {
+          const res = await axios.post(`${server_api_base_url}edit_profile.php`, {
+            user_id: user_id,
+            request_type: "getUserData",
+          });
+      
+          const data = res.data[0]; // assuming res.data is an array with at least one item
+          console.log(res.data);
+      
+          await AsyncStorage.setItem("user_data", JSON.stringify(data)); // ✅ Save only the data[0] object
+      
+          setMyData(data);
+          setUsername(data[1]);
+          setFullname(data[2]);
+          setEmail(data[3]);
+          setphoneNumber(data[4]);
+          setPP(`${server_api_base_url}profilepictures/${data[5]}`);
+          setFetchData(false);
+        } catch (fetchError) {
+          console.log("getUserData error:", fetchError);
+        }
+      };
+      
+      const fetchUserData = async () => {
+        try {
+          const value = await AsyncStorage.getItem("user_data");
+      
+          if (value !== null) {
+            const data = JSON.parse(value); // ✅ properly parse the value
+            setMyData(data);
+            setUsername(data[1]);
+            setFullname(data[2]);
+            setEmail(data[3]);
+            setphoneNumber(data[4]);
+            setPP(`${server_api_base_url}profilepictures/${data[5]}`);
+            setFetchData(false);
+      
+            console.log("Fetched user from AsyncStorage");
+          }
+        } catch (fetchOfflineData) {
+          console.log("AsyncStorage read error:", fetchOfflineData);
+        }
+      
+        // Always try to refresh from server after loading local data
+        await getUserData();
+      };
+      
 
-        console.log(res.data)
-
-        setMyData(data);
-        setUsername(data[1]);
-        setFullname(data[2]);
-        setEmail(data[3]);
-        setphoneNumber(data[4]);
-        setPP(`${server_api_base_url}profilepictures/${data[5]}`);
-        setFetchData(false);
-    };
 
     useEffect(() => {
         if (user_id !== null) {
-            getUserData();
+            fetchUserData();
         }
     }, [user_id]);
 
@@ -100,6 +136,14 @@ const HomeScreen = ()=>{
             navigation.navigate('Login');
         }
     }, [isLoggedIn]);
+
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        fetchUserData();
+        await getUserData();
+        setRefreshing(false);
+    };
 
     const [loadingPosts, setLoadingPosts] = useState(false);
     const [matches, setMatches] = useState([]);
@@ -172,7 +216,12 @@ const HomeScreen = ()=>{
             </View>
 
             <View>
-                <ScrollView className = " bg-white mt-24 mb-12">
+                <ScrollView 
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                    className = " bg-white mt-24 mb-12">
+
                     <ImageBackground
                         className =" p-4 pb-2"
                         source={require('../assets/images/chatbg3.jpg')}
@@ -210,8 +259,8 @@ const HomeScreen = ()=>{
                                 <View>
                                     {Swipes.map((swipe, swipeIndex) => {
                                         return (
-                                            <View key={swipeIndex}>
-                                                <TouchableOpacity onPressIn={()=>OpenMatchProfile(swipeIndex)} className=" p-2 flex flex-row justify-between gap-2" onPress={()=> {}}>
+                                            <View key={swipeIndex} className=" ">
+                                                <TouchableOpacity  onPress={()=>OpenMatchProfile(swipeIndex)} className=" p-2 flex flex-row justify-between gap-2">
                                                     <View className=" flex flex-row justify-between gap-2">
                                                         <View className =" border-2 border-gray-200 rounded-full">
                                                             <Image
