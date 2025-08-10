@@ -4,9 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-const server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+const server_api_base_url = "http://192.168.141.234/textiepro/apis/";
 
-const ChatUser = ({ id, username, image, time, message, type, status, sender }) => {
+const SuggestedUser = ({ id, username, image, time, message, type, status, sender }) => {
 
   const navigation = useNavigation();
   const [vibrateState, setVibrateState] = useState(true);
@@ -80,4 +80,4 @@ const ChatUser = ({ id, username, image, time, message, type, status, sender }) 
   );
 };
 
-export default ChatUser;
+export default SuggestedUser;

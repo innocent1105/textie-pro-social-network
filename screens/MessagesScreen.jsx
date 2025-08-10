@@ -20,12 +20,15 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -39,10 +42,19 @@ const MessagesScreen = ({ route }) => {
   const otherUserId = Chat.userId;
   const otherUserImage = Chat.image;
 
+  
+  const openProfile = ()=>{
+    navigation.navigate("LikedUser", { User : {
+      user_id : user_id,
+      id : otherUserId,
+      name: otherUserName,
+      image: otherUserImage
+    }})
+  }
 
 
   const navigation = useNavigation();
-  let server_api_base_url = "http://192.168.38.234/textiepro/apis/";
+  let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
 
 
   const [isLoggedIn, setIsLoggedIn] = useState(null); 
@@ -108,11 +120,26 @@ const MessagesScreen = ({ route }) => {
 
     setloadingMessages(false);
     setMessages(res.data);
+    await AsyncStorage.setItem(`messages-${otherUserId}`, JSON.stringify(res.data));
     // console.log(res.data);
   }
 
-  fetchMessages(user_id, otherUserId);
+  const getChatUsers = async ()=>{
+    const value = await AsyncStorage.getItem(`messages-${otherUserId}`);
+    // console.log("value", value);
+    if(value !== null){
+      setloadingMessages(false);
+      setMessages(JSON.parse(value));
+      await fetchMessages(user_id, otherUserId);
+    }else{
+      await fetchMessages(user_id, otherUserId);
+    }
+  }
 
+
+  getChatUsers();
+
+  
   
   
 
@@ -222,7 +249,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                 <Entypo name="chevron-left" size={24} color="black" />
               </TouchableOpacity>
               
-              <View className ="flex-row gap-2 ">
+              <TouchableOpacity onPress={()=> openProfile()} className ="flex-row gap-2 ">
                 <View>
                   <Image className = " w-10 h-10 rounded-full " source={{ uri: `${server_api_base_url}/profilepictures/${otherUserImage}` }} />
                 </View>
@@ -230,7 +257,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                   <Text className =" font-medium ">{otherUserName}</Text>
                   <Text className =" text-xs text-green-600">Online</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
 
             </View>
             <View className =" ">
@@ -249,7 +276,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
               <Entypo name="chevron-left" size={24} color="black" />
             </TouchableOpacity>
             
-            <View className ="flex-row gap-2 ">
+            <TouchableOpacity onPress={()=> openProfile()} className ="flex-row gap-2 ">
               <View>
                 <Image className = " w-10 h-10 rounded-full " source={{ uri: `${server_api_base_url}/profilepictures/${otherUserImage}` }} />
               </View>
@@ -257,7 +284,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                 <Text className =" font-medium ">{otherUserName}</Text>
                 <Text className =" text-xs text-green-600">Online</Text>
               </View>
-            </View>
+            </TouchableOpacity>
 
           </View>
           <View className =" ">
@@ -332,25 +359,37 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
         />
 
         {/* Input */}
-      <StyledView className=" absolute bottom-0 rounded-t-3xl  flex-row items-center px-2 py-2 bg-gray-100">
+      <StyledView className=" w-full absolute bottom-0 rounded-t-3xl  flex-row items-center px-2 py-2 bg-gray-100">
+         <View className='p-2 mb-14'
+         >
+           <StyledTouchableOpacity onPress={()=>{}} className="items-center justify-center text-gray-500">
+              <MaterialCommunityIcons name="sticker-emoji" size={24} color="#40404F" />
+            </StyledTouchableOpacity>
+         </View>
+
           <StyledTextInput
             value={inputText}
             onChangeText={setInputText}
-            placeholder="Type a message..."
-            className="flex-1 bg-white mb-14 rounded-full px-4 py-2 border border-gray-300 text-base"
+            placeholder="Message"
+            className=" flex-1 bg-white mb-14 rounded-full px-4 py-2 border border-gray-300 text-base"
             onSubmitEditing={sendMessage}
             onPress={() => { setChatFixedHeader(true)}}
           
           />
-          <StyledTouchableOpacity
-            onPress={sendMessage}
-            className="ml-2 mb-14 px-2 py-2 bg-blue-500 rounded-full"
+          <LinearGradient
+            colors={['#3b82f6', '#1d4ed8']} // Tailwind blue-500 to blue-900
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            className="ml-2 mb-14 p-3 rounded-full"
           >
-            <StyledText className="text-white font-semibold">
-              <FontAwesome5 name="arrow-circle-up" size={24} color="white" />
-            </StyledText>
-          </StyledTouchableOpacity>
+            <StyledTouchableOpacity onPress={sendMessage} className="items-center justify-center">
+              <Ionicons name="send" size={20} color="white" />
+            </StyledTouchableOpacity>
+          </LinearGradient>
+
+
         </StyledView> 
+
       </KeyboardAvoidingView>
       </ImageBackground>
     </SafeAreaView>

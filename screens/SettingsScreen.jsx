@@ -18,6 +18,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import Entypo from '@expo/vector-icons/Entypo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
@@ -33,19 +34,19 @@ const SettingsScreen = ()=>{
 
 
 
-    const [isLoggedIn, setIsLoggedIn] = useState(null); 
+    const [isLoggedIn, setIsLoggedIn] = useState(true); 
     const [user_id , setUserId] = useState(null);
 
     console.log(user_id)
-    let server_api_base_url = "http://192.168.38.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
             const token = await SecureStore.getItemAsync('user_session');
-            // console.log('Loaded token:', token);
+            console.log('Loaded token:', token);
             if(token === null){
                 navigation.navigate('Login');
-
+                setIsLoggedIn(false);
             }
             return token;
         } catch (e) {
@@ -57,24 +58,27 @@ const SettingsScreen = ()=>{
     const getUserId = async () => {
         try {
             const token = await SecureStore.getItemAsync('user_id');
-            // console.log('Loaded user_id:', token);
             setUserId(parseInt(token.replace(/\D/g, ""), 10))
+ 
             return token;
         } catch (e) {
             console.error('Failed to get token', e);
             return null;
         }
     };
+
+    let [n , setN] = useState(0);
+
     useEffect(() => {
         getToken();
         getUserId();
-    }, []);
+      }, []);
     
-    useEffect(() => {
-        if (isLoggedIn === "false") {
-            navigation.navigate('Login');
+      useEffect(() => {
+        if (isLoggedIn === false) {
+          navigation.navigate('Login');
         }
-    }, [isLoggedIn]);
+      }, [isLoggedIn]);
     
 
        
@@ -174,11 +178,20 @@ const SettingsScreen = ()=>{
 
                 <TouchableOpacity 
                     onPress={ async ()=>{
-                        await SecureStore.deleteItemAsync('user_session');
-                        await SecureStore.deleteItemAsync('user_id');
-                        setIsLoggedIn("false");
-                        
-                        console.log("logged out")
+                        try {
+                            await AsyncStorage.removeItem("chats");
+                            console.log("Chats deleted");
+                        } catch (error) {
+                            console.error("Error deleting chats:", error);
+                        }
+                        await AsyncStorage.clear();
+
+                        const keys = ['user_id', 'token'];
+                        for (const key of keys) {
+                            await SecureStore.deleteItemAsync(key);
+                        }
+                        console.log("logged out");
+                        setIsLoggedIn(false);
                     }}
 
                     className=" my-1 border-2 border-gray-300 text-gray-300 bg-gray-200 rounded-md w-full flex flex-row"

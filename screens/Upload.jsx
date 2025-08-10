@@ -21,7 +21,7 @@ const UploadPostScreen = ()=>{
 
    
       
-    let server_api_base_url = "http://192.168.38.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
     let uri = server_api_base_url + "profile_pictures/default-pp.png";
     const getToken = async () => {
         try {
@@ -149,9 +149,9 @@ const UploadPostScreen = ()=>{
        <View className =" flex-1 bg-white">
         <View>
           <View className=" absolute border-b border-gray-200 bg-white w-full right-0 flex flex-row justify-between gap-2 mt-8 p-4">
-             <View className =" pt-1">
-                <Octicons name="chevron-left" size={24} color="black" />
-              </View>
+                <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4 pt-1">
+                    <Entypo name="chevron-left" size={24} color="black" />
+                </TouchableOpacity>
               <View className ="">
         
                   <Text className =" text-2xl font-bold">Create Post</Text>

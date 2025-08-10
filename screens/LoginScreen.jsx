@@ -22,13 +22,15 @@ const LoginScreen = ()=>{
             </View>
 
             <View className=" mt-10 p-4">
-                <Text className=" text-white text-6xl font-bold">
-                    Connecting to the world has never been this Better 
+                <Text className=" text-gray-300 text-6xl font-bold">
+                    The <Text className=" text-white text-6xl font-bold">people</Text> you're looking for, are looking
+                    for you!
                 </Text>
                 <Text className=" text-white text-sm font-bold">
-                    The people you're looking for, are looking
-                </Text><Text className=" text-white text-sm font-bold">
-                    for you!
+                    Connecting to the world has never been
+                </Text>
+                <Text className=" text-white text-sm font-bold">
+                     this Better 
                 </Text>
             </View>
 

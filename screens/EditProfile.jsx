@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef} from "react";
+import React, { useEffect, useState, useMemo,useCallback, useRef} from "react";
 import { View, Text, Button, Pressable, Platform , KeyboardAvoidingView, TextArea, Animated,ImageBackground, TouchableWithoutFeedback , TextInput, Image, StyleSheet, ActivityIndicator,TouchableOpacity, ScrollView, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
@@ -21,12 +21,22 @@ import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 import {Country , State, City} from 'country-state-city';
 
 const EditProfileScreen = ()=>{
     let navigation = useNavigation();
 
+    const sheetRef = useRef(null);
+
+    // Snap points
+    const snapPoints = useMemo(() => ['25%', '50%'], []);
+
+    // Open the bottom sheet
+    const handleOpenSheet = useCallback(() => {
+        sheetRef.current?.snapToIndex(1); // 50%
+    }, []);
        
     const [username, setUsername] = useState('');
     const [fullname, setFullname] = useState("");
@@ -50,7 +60,7 @@ const EditProfileScreen = ()=>{
     const [user_id , setUserId] = useState(null);
 
     console.log(user_id)
-    let server_api_base_url = "http://192.168.38.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
@@ -250,10 +260,14 @@ useEffect(() => {
 }, [selectedState]);
 
 
-
+    const goToSetAge = ()=>{
+        console.log("navigate to set age");
+        navigation.navigate("SetAgeRange");
+    }
        
     return (
-        <View>
+        <View style={{ flex: 1 }}>
+
             <View className =" absolute right-0 left-0 border-b border-gray-200 p-4 pb-2 pt-12">
                 <View className =" w-full flex flex-row justify-between gap-2">
                     <View className ="flex flex-row">
@@ -286,7 +300,8 @@ useEffect(() => {
                 </View>
             </View>
 
-            <View className=" mt-24">
+       
+            <View className=" mt-24">  
                   
 
                 {fetchingData ? (
@@ -393,7 +408,7 @@ useEffect(() => {
                                 </View>
                             </View>
                     
-                            <View className=" flex flex-row justify-end my-2">
+                            <View className=" flex flex-row justify-end my-2 mb-8">
                                 <TouchableOpacity onPress={() => savePersonalDetails()}>
                                     <View className=" p-2 px-6 rounded-md bg-gray-900">
                                         {savingPDet ? (
@@ -406,6 +421,25 @@ useEffect(() => {
                                     </View>
                                 </TouchableOpacity>
                             </View>
+
+                            <TouchableOpacity onPress={()=> goToSetAge()} className=" border-2 border-gray-400 p-2 rounded flex flex-row justify-between">
+                                <View className="flex flex-row gap-2">
+                                    <Text className="  p-2">
+                                        <Ionicons name="calendar-number-outline" size={24} color="black" />
+                                    </Text>
+                                    <View className=" ">
+                                        <Text className=" font-medium text-gray-900">Years</Text>
+                                        <Text className=" font-medium text-gray-500">How old are you?</Text>
+                                    </View>
+                                </View>
+                                <View>
+                                    <Text className=" bg-gray-200 rounded-sm p-2">
+                                        <Feather name="arrow-right" size={24} color="black" />
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            
 
                     </View>
 
@@ -423,68 +457,7 @@ useEffect(() => {
                                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                                 keyboardVerticalOffset={100}
                                 >
-                                <ScrollView
-                                    keyboardShouldPersistTaps="handled"
-                                    showsVerticalScrollIndicator={false}
-                                    contentContainerStyle={{ paddingBottom: 100 }}
-                                >
-                                
-                                    <View className="px-4">
-                                    <Text className="font-bold mx-2 mt-4 text-lg">Residence</Text>
                         
-                                    <View className="my-2 z-30">
-                                        <Text className="font-bold px-2 text-gray-500">Country</Text>
-                                        <DropDownPicker
-                                        open={countryOpen}
-                                        value={selectedCountry}
-                                        items={countryItems}
-                                        setOpen={setCountryOpen}
-                                        setValue={setSelectedCountry}
-                                        setItems={setCountryItems}
-                                        placeholder="Select a country"
-                                        searchPlaceholder="Type to search countries..."
-                                        searchable
-                                        searchTextInputStyle={{
-                                            borderColor: '#ccc',
-                                            fontSize: 14,
-                                            paddingVertical: 8,
-                                            color: '#444',
-                                        }}
-                                        zIndex={3000}
-                                        zIndexInverse={1000}
-                                        style={{ borderColor: '#ccc' }}
-                                        dropDownContainerStyle={{ borderColor: '#ccc' }}
-                                        />
-                                    </View>
-                        
-                                    <View className="my-2 z-20">
-                                        <Text className="font-bold px-2 text-gray-500">Province</Text>
-                                        <DropDownPicker
-                                        open={stateOpen}
-                                        value={selectedState}
-                                        items={stateItems}
-                                        setOpen={setStateOpen}
-                                        setValue={setSelectedState}
-                                        setItems={setStateItems}
-                                        placeholder="Select a province"
-                                        searchPlaceholder="Search Province"
-                                        searchable
-                                        searchTextInputStyle={{
-                                            borderColor: '#ccc',
-                                            fontSize: 14,
-                                            paddingVertical: 8,
-                                            color: '#444',
-                                        }}
-                                        disabled={!selectedCountry}
-                                        zIndex={2000}
-                                        zIndexInverse={2000}
-                                        style={{ borderColor: '#ccc' }}
-                                        dropDownContainerStyle={{ borderColor: '#ccc' }}
-                                        />
-                                    </View>
-                        
-                                    </View>
-                                </ScrollView>
                                 </KeyboardAvoidingView>
                             )}
                             </View>
@@ -505,3 +478,22 @@ useEffect(() => {
 }
 
 export default EditProfileScreen;
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingTop: 100,
+      paddingHorizontal: 20,
+    },
+    title: {
+      fontSize: 24,
+      marginBottom: 20,
+      fontWeight: 'bold',
+    },
+    sheetContent: {
+      flex: 1,
+      alignItems: 'center',
+      padding: 20,
+    },
+  });
+  

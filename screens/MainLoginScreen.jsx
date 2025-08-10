@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import { useAsyncStorage } from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // let LoggedIn = false;
 
@@ -31,7 +32,7 @@ const MainLoginScreen = ()=>{
     const handleSubmit = async ()=>{
         setLoadingForm(true);
         try{
-            const res = await axios.post('http://192.168.38.234/textiepro/apis/login.php', {
+            const res = await axios.post('http://192.168.6.234/textiepro/apis/login.php', {
                 email: email,
                 password: password
             });
@@ -44,6 +45,8 @@ const MainLoginScreen = ()=>{
 
                 setFormError(false);
                 setBResponse("");
+
+                await AsyncStorage.removeItem("chats");
 
                 navigation.navigate("Home");
                 // alert(user_id)
