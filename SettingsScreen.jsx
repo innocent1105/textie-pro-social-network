@@ -38,7 +38,7 @@ const SettingsScreen = ()=>{
     const [user_id , setUserId] = useState(null);
 
     console.log(user_id)
-    let server_api_base_url = "http://192.168.8.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
 
     const getToken = async () => {
         try {

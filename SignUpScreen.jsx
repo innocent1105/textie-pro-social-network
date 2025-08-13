@@ -23,7 +23,7 @@ const SignupScreen = ()=>{
         setIsLoadingSignup(true);
 
         try {
-          const res = await axios.post('http://192.168.141.234/textiepro/apis/index.php', {
+          const res = await axios.post('http://192.168.6.234/textiepro/apis/index.php', {
             email: email,
             phone : phone_number,
             username : username,
@@ -95,7 +95,7 @@ const SignupScreen = ()=>{
   
     return (
         <ImageBackground
-          source={require('../assets/images/loginbg.jpg')} 
+          source={require('../assets/images/models/model4.jpg')} 
           resizeMode="cover"
           style={{ flex: 1 }}
         >

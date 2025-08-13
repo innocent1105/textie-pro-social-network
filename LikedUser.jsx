@@ -14,12 +14,50 @@ import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
+import { RefreshControl } from 'react-native';
+
+
+let server_api_base_url = "http://192.168.228.234/textiepro/apis/";
+
 
 const LikedUserScreen = ({ route })=>{
+
     const { User } = route.params;
     const likedUserName = User.name;
     const likedUserImage = User.image;
     const likedUserId = User.id;
+
+    const [followed, setFollowed] = useState(false);
+    const [loadingFollow, setLoadingFollow] = useState(true);
+
+    const checkIfFollowed = async () => {
+        if (!user_id) return; // wait until user_id is set
+    
+        const followUrl = `${server_api_base_url}followed.php`;
+        try {
+            const res = await axios.post(followUrl, {
+                user_id: user_id,
+                followed_user_id: likedUserId
+            });
+    
+            console.log(res.data);
+    
+            if (res.data === "followed") {
+                setFollowed(true);
+            } else if (res.data === "non") {
+                setFollowed(false);
+            } else {
+                console.warn("Unexpected response:", res.data);
+            }
+        } catch (error) {
+            console.error("Error checking follow status:", error);
+        } finally {
+            setLoadingFollow(false);
+        }
+    };
+    
+      
+    
 
     const getUserDetails = async ()=>{
         const res = await axios.post(getPostsUrl, {
@@ -35,7 +73,6 @@ const LikedUserScreen = ({ route })=>{
     const [isLoggedIn, setIsLoggedIn] = useState(null); 
     const [user_id , setUserId] = useState(null);
 
-    let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
@@ -70,9 +107,18 @@ const LikedUserScreen = ({ route })=>{
     }, []);
     
     useEffect(() => {
+        if (user_id) {
+            checkIfFollowed();
+        }
+    }, [user_id]);
+    
+    
+    useEffect(() => {
         if (isLoggedIn === "false") {
             navigation.navigate('Login');
         }
+
+       
     }, [isLoggedIn]);
 
 
@@ -90,7 +136,7 @@ const LikedUserScreen = ({ route })=>{
             setPosts(res.data);
             
             setLoadingPosts(false);
-            console.log(res.data);
+            // console.log(res.data);
         } catch (error) {
             console.error("Error fetching posts:", error);
         }
@@ -124,6 +170,42 @@ const LikedUserScreen = ({ route })=>{
             }
         });
     }
+
+
+   
+
+    const Follow = async ()=>{
+        let followUrl = server_api_base_url + "follow.php";
+        setLoadingFollow(true);
+        try{
+            const res = await axios.post(followUrl, {
+                user_id : user_id,
+                followed_user_id : likedUserId 
+            });
+            
+            if(res.data == "followed"){
+                setFollowed(true)
+            }else if(res.data == "unfollowed"){
+                setFollowed(false)
+            }else{
+                console.log(res.data);
+            }
+            console.log(res.data);
+            setLoadingFollow(false)
+        }catch(error){
+            console.log(error);
+        }
+    }
+
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await checkIfFollowed();
+        await  getPosts();
+        setRefreshing(false);
+    };
+
 
     return (
         <View>
@@ -160,7 +242,11 @@ const LikedUserScreen = ({ route })=>{
 
             <View>
             
-                <ScrollView className = " bg-white mt-24 mb-12">
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                    className = " bg-white mt-24 mb-12">
                     <ImageBackground
                         className =" p-4 pb-2"
                         source={require('../assets/images/chatbg3.jpg')}
@@ -179,10 +265,40 @@ const LikedUserScreen = ({ route })=>{
                             <Text className =" font-bold text-lg text-center text-blue-950">{likedUserName}</Text>
                             <Text className =" font-bold text-sm text-center text-blue-950">23 years - Lives in Lusaka</Text>
                         </View>
-                        <View className =" flex flex-row justify-center gap-8 p-2 ">
-                            <TouchableOpacity className=" p-2" onPress={()=> {}}>
-                                <Text className =" font-bold text-blue-950">Follow</Text>
-                            </TouchableOpacity> 
+                        <View className =" flex flex-row justify-center gap-4 p-2 ">
+                            {loadingFollow ? (
+                                <View className =" pt-2">
+                                    <ActivityIndicator  color={"#aaa"}/>
+                                </View>
+                            ) : (
+                                <TouchableOpacity className=" p-2" onPress={()=> Follow()}>
+                                    {followed ? (
+                                        <MaskedView
+                                            className=" "
+                                            maskElement={
+                                                <View className="bg-transparent ">
+                                                    <Text className="text-md font-bold text-black">Following</Text>
+                                                </View>
+                                            }
+                                            >
+                                            <LinearGradient
+                                                colors={['#1877F2', '#4D4DFF']}
+                                                start={{ x: 0, y: 0 }}
+                                                end={{ x: 1, y: 0 }}
+                                                className=" border"
+                                            >
+                                                <Text className="text-md font-bold opacity-0">Following</Text>
+                                            </LinearGradient>
+                                        </MaskedView>
+
+
+
+                                    ) : (
+                                        <Text className =" font-bold text-blue-950">Follow</Text>
+                                    )}
+                                </TouchableOpacity> 
+                            )}
+                            
 
                             <TouchableOpacity className =" border border-gray-200 p-2 px-10 bg-white rounded-md" onPress={()=> OpenMessages(User)}>
                                 <Text className =" font-bold text-blue-950">Message</Text>

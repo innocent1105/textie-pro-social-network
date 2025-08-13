@@ -42,10 +42,19 @@ const MessagesScreen = ({ route }) => {
   const otherUserId = Chat.userId;
   const otherUserImage = Chat.image;
 
+  
+  const openProfile = ()=>{
+    navigation.navigate("LikedUser", { User : {
+      user_id : user_id,
+      id : otherUserId,
+      name: otherUserName,
+      image: otherUserImage
+    }})
+  }
 
 
   const navigation = useNavigation();
-  let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
+  let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
 
 
   const [isLoggedIn, setIsLoggedIn] = useState(null); 
@@ -112,12 +121,12 @@ const MessagesScreen = ({ route }) => {
     setloadingMessages(false);
     setMessages(res.data);
     await AsyncStorage.setItem(`messages-${otherUserId}`, JSON.stringify(res.data));
-    console.log(res.data);
+    // console.log(res.data);
   }
 
   const getChatUsers = async ()=>{
     const value = await AsyncStorage.getItem(`messages-${otherUserId}`);
-    console.log("value", value);
+    // console.log("value", value);
     if(value !== null){
       setloadingMessages(false);
       setMessages(JSON.parse(value));
@@ -240,7 +249,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                 <Entypo name="chevron-left" size={24} color="black" />
               </TouchableOpacity>
               
-              <View className ="flex-row gap-2 ">
+              <TouchableOpacity onPress={()=> openProfile()} className ="flex-row gap-2 ">
                 <View>
                   <Image className = " w-10 h-10 rounded-full " source={{ uri: `${server_api_base_url}/profilepictures/${otherUserImage}` }} />
                 </View>
@@ -248,7 +257,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                   <Text className =" font-medium ">{otherUserName}</Text>
                   <Text className =" text-xs text-green-600">Online</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
 
             </View>
             <View className =" ">
@@ -267,7 +276,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
               <Entypo name="chevron-left" size={24} color="black" />
             </TouchableOpacity>
             
-            <View className ="flex-row gap-2 ">
+            <TouchableOpacity onPress={()=> openProfile()} className ="flex-row gap-2 ">
               <View>
                 <Image className = " w-10 h-10 rounded-full " source={{ uri: `${server_api_base_url}/profilepictures/${otherUserImage}` }} />
               </View>
@@ -275,7 +284,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                 <Text className =" font-medium ">{otherUserName}</Text>
                 <Text className =" text-xs text-green-600">Online</Text>
               </View>
-            </View>
+            </TouchableOpacity>
 
           </View>
           <View className =" ">

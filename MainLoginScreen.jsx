@@ -32,7 +32,7 @@ const MainLoginScreen = ()=>{
     const handleSubmit = async ()=>{
         setLoadingForm(true);
         try{
-            const res = await axios.post('http://192.168.141.234/textiepro/apis/login.php', {
+            const res = await axios.post('http://192.168.228.234/textiepro/apis/login.php', {
                 email: email,
                 password: password
             });
@@ -72,7 +72,7 @@ const MainLoginScreen = ()=>{
 
     return (
         <ImageBackground
-            source={require('../assets/images/models/model2.jpg')} // 👈 Replace with your image path
+            source={require('../assets/images/models/model4.jpg')}
             resizeMode="cover"
             style={{ flex: 1 }}
         >

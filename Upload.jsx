@@ -21,7 +21,7 @@ const UploadPostScreen = ()=>{
 
    
       
-    let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
     let uri = server_api_base_url + "profile_pictures/default-pp.png";
     const getToken = async () => {
         try {

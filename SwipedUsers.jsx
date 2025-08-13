@@ -15,13 +15,13 @@ import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RefreshControl } from 'react-native';
 
-const HomeScreen = ()=>{
+const SwipedUsersScreen = ()=>{
 
     let navigation = useNavigation();
     const [isLoggedIn, setIsLoggedIn] = useState(null); 
     const [user_id , setUserId] = useState(null);
 
-    let server_api_base_url = "http://192.168.228.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
@@ -67,7 +67,7 @@ const HomeScreen = ()=>{
     const [fetchingData , setFetchData] = useState(true);
     const [myData, setMyData] = useState([]);
    
-    const [refreshing, setRefreshing] = useState(false);
+    const [refreshing, setRefreshing] = useState(true);
 
 
     const getUserData = async () => {
@@ -80,7 +80,7 @@ const HomeScreen = ()=>{
           const data = res.data[0]; // assuming res.data is an array with at least one item
           console.log(res.data);
       
-          await AsyncStorage.setItem("user_data", JSON.stringify(data)); // ✅ Save only the data[0] object
+          await AsyncStorage.setItem("following_users", JSON.stringify(data)); 
       
           setMyData(data);
           setUsername(data[1]);
@@ -96,7 +96,7 @@ const HomeScreen = ()=>{
       
       const fetchUserData = async () => {
         try {
-          const value = await AsyncStorage.getItem("user_data");
+          const value = await AsyncStorage.getItem("following_users");
       
           if (value !== null) {
             const data = JSON.parse(value); // ✅ properly parse the value
@@ -157,10 +157,16 @@ const HomeScreen = ()=>{
         });
         
         setSwipes(res.data.flat());
-        // console.log(res.data);
+        console.log(res.data);
     }
 
-    getSwipes();
+    useEffect(() => {
+        if (user_id) {
+            getSwipes();
+            setRefreshing(false);
+        }
+    }, [user_id]);
+
 
     const editMyProfile = () =>{
         navigation.navigate("EditProfile");
@@ -193,7 +199,7 @@ const HomeScreen = ()=>{
                         <MaskedView
                             maskElement={
                                 <View className="bg-transparent">
-                                <Text className="text-2xl font-bold text-black">Profile</Text>
+                                <Text className="text-2xl font-bold text-black">Liked Profiles</Text>
                                 </View>
                             }
                             >
@@ -203,7 +209,7 @@ const HomeScreen = ()=>{
                                 end={{ x: 1, y: 0 }}
                                 className="h-8"
                             >
-                                <Text className="text-2xl font-bold opacity-0">Profile</Text>
+                                <Text className="text-2xl font-bold opacity-0">Liked Profiles</Text>
                             </LinearGradient>
                         </MaskedView>
                     </View>
@@ -222,40 +228,12 @@ const HomeScreen = ()=>{
                     }
                     className = " bg-white mt-24 mb-12">
 
-                    <ImageBackground
-                        className =" p-4 pb-2"
-                        source={require('../assets/images/chatbg3.jpg')}
-                        resizeMode="cover"
-                        style={{ flex: 1 }}
-                    >
-                        <View className =" p-2 flex flex-row justify-center">
-                           <View className =" flex flex-row justify-center p-1 border-4 border-gray-100 rounded-full ">
-                                <Image
-                                    source={{ uri: `${pp}` }}
-                                    className="w-28 h-28 object-cover rounded-full"
-                                />
-                           </View>
-                        </View>
-                        <View className =" mb-4">
-                            <Text className =" font-bold text-lg text-center text-blue-950">{username}</Text>
-                            <Text className =" font-bold text-sm text-center text-blue-950">23 years - Lives in Lusaka</Text>
-                        </View>
-                        <View className =" flex flex-row justify-center gap-8 p-2 ">
-                            <TouchableOpacity className=" p-2" onPress={()=> {}}>
-                                <Text className =" font-bold text-blue-950">My Stories</Text>
-                            </TouchableOpacity> 
-
-                            <TouchableOpacity className =" border border-gray-200 p-2 px-10 bg-white rounded-md" onPress={()=> editMyProfile()}>
-                                <Text className =" font-bold text-blue-950">Edit Profile</Text>
-                            </TouchableOpacity>
-
-                        </View>
-                    </ImageBackground>
+                   
 
                     <View className="">
                         {Swipes.length > 0 ? (
                             <View>
-                                <Text className =" font-bold p-4 text-gray-400">Matched profiles</Text>
+                              
                                 <View>
                                     {Swipes.map((swipe, swipeIndex) => {
                                         return (
@@ -270,7 +248,7 @@ const HomeScreen = ()=>{
                                                         </View>
                                                         <View className =" pt-2">
                                                             <Text className =" text-sm font-medium text-gray-700">{swipe.username}</Text>
-                                                            <Text className =" text-xs font-medium text-gray-500"> {swipe.years} years - Lives in {swipe.city}</Text>
+                                                            <Text className =" text-xs font-medium text-gray-500">{swipe.years} years - Lives in {swipe.city}</Text>
                                                         </View>
                                                     </View>
 
@@ -283,9 +261,9 @@ const HomeScreen = ()=>{
                         ) : (
                             <View className=" flex flex-row justify-between">
                                 <Text className =" font-bold p-4 text-gray-400">
-                                    No Matched profiles 
+                                    You haven't Liked anyone yet. 
                                 </Text>
-                                <Text onPress={()=>{}} className =" font-bold p-4 text-gray-500">
+                                <Text onPress={()=> {navigation.navigate("Swipe")}} className =" font-bold p-4 text-gray-500">
                                     Open Swipes 
                                 </Text>
                             </View>
@@ -294,10 +272,12 @@ const HomeScreen = ()=>{
 
 
                     </View>
+
+
                 </ScrollView> 
             </View>
         </View>
     )
 }
 
-export default HomeScreen;
+export default SwipedUsersScreen;
