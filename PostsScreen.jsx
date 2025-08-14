@@ -223,32 +223,26 @@ const PostsScreen = ()=>{
     console.log(selectedUsers)
    
   };
+  let shareUrl = server_api_base_url + "share_as_message.php";
 
   const shareAsMessage = async () => {
   
-    console.log(selectedUsers);
-    let shareUrl = server_api_base_url + "share_as_message.php";
     try{
       const res = await axios.post(shareUrl, {
         user_id: user_id,
         post_id: sharePost,
-        content: content,
+        content: "post",
         selectedUsers: selectedUsers
-      }, {
-        headers: { "Content-Type": "application/json" }
       });
       
       console.log(res.data);
     }catch(shareError){
-
+      console.log(shareError);
     }
 
-
-
-
-    // setVisible(false);
-    // setSharePost("");
-    // setSelectedUsers([]);
+    setVisible(false);
+    setSharePost("");
+    setSelectedUsers([]);
   };
 
   const ShareButton = async (post_id, content) => {
@@ -605,11 +599,11 @@ const PostsScreen = ()=>{
                           <Text className=" font-semibold text-gray-500 px-1">{item.views}</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => ShareButton(posts_id - 1, item.text)} className=" flex flex-row p-2 rounded-full bg-gray-100 ">
+                        <TouchableOpacity onPress={() => ShareButton(item.id - 1, item.text)} className=" flex flex-row p-2 rounded-full bg-gray-100 ">
                           <View  className=" ">
                             <Feather name="send" size={20} color="black" />
                           </View>
-                          <Text className=" font-semibold text-gray-500 px-1">75</Text>
+                          <Text className=" font-semibold text-gray-500 px-1">{item.shares}</Text>
                         </TouchableOpacity>
 
 

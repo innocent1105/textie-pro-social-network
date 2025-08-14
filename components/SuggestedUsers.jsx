@@ -4,9 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-const server_api_base_url = "http://192.168.228.234/textiepro/apis/";
+const server_api_base_url = "http://192.168.6.234/textiepro/apis/";
 
-const ChatUser = ({ id, username, image, time, message, type, status, sender }) => {
+const SuggestedUser = ({ id, username, image, time, message, type, status, sender }) => {
 
   const navigation = useNavigation();
   const [vibrateState, setVibrateState] = useState(true);
@@ -66,15 +66,7 @@ const ChatUser = ({ id, username, image, time, message, type, status, sender }) 
           />
           <View className="w-full h-11 overflow-hidden">
             <Text className="pt-2 text-md font-medium text-gray-700">{username}</Text>
-            {message == "post" ? (
-              <View>{sender ? (
-                <Text className="text-xs w-3/4 text-gray-400 overflow-hidden">You shared a post</Text>
-              ) : (
-                <Text className="text-xs w-3/4 text-gray-400 overflow-hidden">{username} shared a post</Text>
-              )}</View>
-            ) : (
-              <Text className="text-xs w-3/4 text-gray-400 overflow-hidden">{message}</Text>
-            )}
+            <Text className="text-xs w-3/4 text-gray-400 overflow-hidden">{message}</Text>
           </View>
         </View>
 
@@ -88,4 +80,4 @@ const ChatUser = ({ id, username, image, time, message, type, status, sender }) 
   );
 };
 
-export default ChatUser;
+export default SuggestedUser;
