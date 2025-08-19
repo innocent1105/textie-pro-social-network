@@ -28,17 +28,12 @@ import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RefreshControl } from 'react-native';
 
-
-  
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledTextInput = styled(TextInput);
 const StyledTouchableOpacity = styled(TouchableOpacity);
-
-
 
 const MessagesScreen = ({ route }) => {
   const { Chat } = route.params;
@@ -47,21 +42,10 @@ const MessagesScreen = ({ route }) => {
   const otherUserId = Chat.userId;
   const otherUserImage = Chat.image;
 
-  const [refreshing, setRefreshing] = useState(false);
-
-  
-  const openProfile = ()=>{
-    navigation.navigate("LikedUser", { User : {
-      user_id : user_id,
-      id : otherUserId,
-      name: otherUserName,
-      image: otherUserImage
-    }})
-  }
 
 
   const navigation = useNavigation();
-  let server_api_base_url = "http://192.168.228.234/textiepro/apis/";
+  let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
 
 
   const [isLoggedIn, setIsLoggedIn] = useState(null); 
@@ -133,7 +117,7 @@ const MessagesScreen = ({ route }) => {
 
   const getChatUsers = async ()=>{
     const value = await AsyncStorage.getItem(`messages-${otherUserId}`);
-    // console.log("value", value);
+    console.log("value", value);
     if(value !== null){
       setloadingMessages(false);
       setMessages(JSON.parse(value));
@@ -147,22 +131,7 @@ const MessagesScreen = ({ route }) => {
   getChatUsers();
 
   
-  // const postId = Post.id;
-  // const PostUsername = Post.username;
-  // const postText = Post.text;
-  // const postDate = Post.date;
-
-  const OpenPost = (post_id,post_username,post_text,post_date, post_pp, post_image)=>{
-    let postData = {
-      id : post_id,
-      username : post_username,
-      text : post_text,
-      date : post_date,
-      pp : post_pp,
-      images : post_image
-    }
-    navigation.navigate('OpenPost', { Post : postData});
-  } 
+  
   
 
 
@@ -198,11 +167,6 @@ const MessagesScreen = ({ route }) => {
     }
   };
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchMessages(user_id, otherUserId);
-    setRefreshing(false);
-  };
 
 
 
@@ -276,7 +240,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                 <Entypo name="chevron-left" size={24} color="black" />
               </TouchableOpacity>
               
-              <TouchableOpacity onPress={()=> openProfile()} className ="flex-row gap-2 ">
+              <View className ="flex-row gap-2 ">
                 <View>
                   <Image className = " w-10 h-10 rounded-full " source={{ uri: `${server_api_base_url}/profilepictures/${otherUserImage}` }} />
                 </View>
@@ -284,7 +248,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                   <Text className =" font-medium ">{otherUserName}</Text>
                   <Text className =" text-xs text-green-600">Online</Text>
                 </View>
-              </TouchableOpacity>
+              </View>
 
             </View>
             <View className =" ">
@@ -303,7 +267,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
               <Entypo name="chevron-left" size={24} color="black" />
             </TouchableOpacity>
             
-            <TouchableOpacity onPress={()=> openProfile()} className ="flex-row gap-2 ">
+            <View className ="flex-row gap-2 ">
               <View>
                 <Image className = " w-10 h-10 rounded-full " source={{ uri: `${server_api_base_url}/profilepictures/${otherUserImage}` }} />
               </View>
@@ -311,7 +275,7 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
                 <Text className =" font-medium ">{otherUserName}</Text>
                 <Text className =" text-xs text-green-600">Online</Text>
               </View>
-            </TouchableOpacity>
+            </View>
 
           </View>
           <View className =" ">
@@ -353,84 +317,39 @@ let [chatFixedHeader, setChatFixedHeader] = useState(false);
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 15 }}
           keyboardShouldPersistTaps="handled"
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
           renderItem={({ item }) => (
             <View>
              
-             {/* // const OpenPost = (post_id,post_username,post_text,post_date)=>{
-    //   let postData = {
-    //     id : post_id,
-    //     username : post_username,
-    //     post_text : post_text,
-    //     post_date : post_date
-    //   }
-    //   navigation.navigate('OpenPost', { Post : postData});
-  // }  */}
         
-              {item.text == "post" ? (
-                <TouchableOpacity onPress={()=> OpenPost(item.post_id, item.post_username, item.post_message,item.post_date, item.post_pp, item.post_image )} className={` px-3 py-1 rounded-2xl max-w-[75%] ${
-                    item.fromMe
-                      ? 'bg-white border border-gray-200 self-end rounded-br-none'
-                      : ' self-start rounded-bl-none bg-gray-800 border border-gray-200 '
-                  }`}
-                >
-                  <Text className=' text-gray-500 font-medium'>Shared Post</Text>
-                 {item.fromMe ? (
-                  <View className=' border-1 border-gray-300 p-2 bg-gray-100 rounded-lg'>
-                    <Text className=' text-gray-700 '>{item.post_message}</Text>
 
-                      <View className =" flex flex-row justify-end pt-2 pl-2">
-                        <View className ="flex flex-col justify-end">
-                          <MessageStatusView messageStatus={item.status}/>
-                        </View>
-                      </View>
-                  </View>
-                 ) : (
-                  <View className=' border-1 border-gray-300 p-2 bg-gray-700 rounded-lg'>
-                    <Text className=' text-gray-300 '>{item.post_message}</Text>
-                  
-                  </View>
-                 )}
-                </TouchableOpacity>
-              ) : (
-                <StyledView
-                  className={` px-3 py-1 flex flex-row justify-end rounded-2xl max-w-[75%] ${
-                    item.fromMe
-                      ? 'bg-white border border-gray-200 self-end rounded-br-none'
-                      : ' self-start rounded-bl-none bg-gray-800 border border-gray-200 '
-                  }`}
-                >
-                  { item.fromMe ? (
-                    <View className =" bg-white flex gap-1 flex-row justify-between">
-
-                      <View>
-                        <StyledText className="text-base text-gray-800">{item.text}</StyledText>
-                      </View>
-                      
-                      <View className =" flex flex-row justify-end pt-2 pl-2">
-                        <View className ="flex flex-col justify-end">
-                          <MessageStatusView messageStatus={item.status}/>
-                        </View>
-                      </View>
+              <StyledView
+                className={` px-3 py-1 flex flex-row justify-end rounded-2xl max-w-[75%] ${
+                  item.fromMe
+                    ? 'bg-white border border-gray-200 self-end rounded-br-none'
+                    : ' self-start rounded-bl-none bg-gray-800 border border-gray-200 '
+                }`}
+              >
+                { item.fromMe ? (
+                  <View className =" bg-white flex flex-row">
+                    <StyledText className="text-base  text-gray-800">{item.text}</StyledText>
+                    <View className =" flex flex-row justify-end pt-2 pl-2">
+                     <MessageStatusView messageStatus={item.status}/>
                     </View>
-                  ) : (
-                    <View className =" bg-gray-800 border-gray-200 ">
-                      <StyledText className="text-base  text-white">{item.text}</StyledText>
-                    </View>
-                  )}
-                  
-                </StyledView>
-              )}
-
-              
+                  </View>
+                ) : (
+                  <View className =" bg-gray-800 border-gray-200 ">
+                    <StyledText className="text-base  text-white">{item.text}</StyledText>
+                  </View>
+                )}
+                
+              </StyledView>
 
             </View>
            
           )}
         />
 
+        {/* Input */}
       <StyledView className=" w-full absolute bottom-0 rounded-t-3xl  flex-row items-center px-2 py-2 bg-gray-100">
          <View className='p-2 mb-14'
          >

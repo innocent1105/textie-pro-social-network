@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from "react";
-import { View, Text, Button, Pressable,FlatList, Image, Modal, ImageBackground, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Button, Pressable,FlatList, Image, ImageBackground, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import PostBottomNav from "./components/PostsBottomNav";
 import ChatUser from "./components/ChatUser";
@@ -17,8 +17,6 @@ import { RefreshControl } from 'react-native';
 import { BlurView } from 'expo-blur';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
 const PostsScreen = ()=>{
@@ -28,27 +26,8 @@ const PostsScreen = ()=>{
 
     const [refreshing, setRefreshing] = useState(false);
   
-    const [visible, setVisible] = useState(false);
     
-    const [users, setUsers] = useState([]);
-    const [selectedUsers, setSelectedUsers] = useState([]);
-
-    const [sharePost, setSharePost] = useState("");
-
-    const fetchUsersFromLocal = async () => {
-      try {
-        const value = await AsyncStorage.getItem("chats");
-        if (value !== null) {
-          setUsers(JSON.parse(value));
-        }
-      } catch (error) {
-        console.error("AsyncStorage error:", error);
-      }
-    };
-
-    
-
-    let server_api_base_url = "http://192.168.228.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.226.234/textiepro/apis/";
     let uri = server_api_base_url + "profile_pictures/default-pp.png";
     const getToken = async () => {
         try {
@@ -64,7 +43,7 @@ const PostsScreen = ()=>{
         try {
             const token = await SecureStore.getItemAsync('user_id');
             console.log('Loaded user_id:', token);
-            setUserId(parseInt(token.replace(/\D/g, ""), 10));
+            setUserId(token)
             // return token;
         } catch (e) {
             console.error('Failed to get token', e);
@@ -76,8 +55,6 @@ const PostsScreen = ()=>{
       useEffect(() => {
         getToken();
         getUserId();
-
-        fetchUsersFromLocal();
       }, []);
     
       useEffect(() => {
@@ -97,6 +74,7 @@ const PostsScreen = ()=>{
       }
       // fetch data
 
+      const [users, setUsers] = useState([]);
       let getUserUrl = "chat_user.php";
       getUserUrl = server_api_base_url + getUserUrl;
 
@@ -124,13 +102,7 @@ const PostsScreen = ()=>{
 
           setPosts(res.data);
           setStories(stories => [...stories, ...uniqueItems]);
-
-          const likedMap = {};
-          res.data.forEach(post => {
-            likedMap[post.id] = !!post.liked; // Ensure boolean
-          });
-
-          setLikedPosts(likedMap);
+         
 
         } catch (error) {
           console.error("Error fetching posts:", error);
@@ -167,34 +139,11 @@ const PostsScreen = ()=>{
         setRefreshing(false);
       };
   
-      const toggleLike = async (postId) => {
-
-        setPosts(prevPosts =>
-          prevPosts.map(post =>
-            post.id === postId
-              ? {
-                  ...post,
-                  likes: likedPosts[postId] 
-                    ? post.likes - 1  // unlike
-                    : post.likes + 1, // like
-                }
-              : post
-          )
-        );
-
+      const toggleLike = (postId) => {
         setLikedPosts(prev => ({
           ...prev,
           [postId]: !prev[postId]
         }));
-        let likeUrl = server_api_base_url + "like.php";
-        const res = await axios.post(likeUrl, {
-          "user_id" : user_id,
-          "post" : postId
-        });
-
-
-        console.log("liked : ", postId)
-        console.log(res.data);
       };
 
       const OpenMatchProfile = (post) =>{
@@ -211,150 +160,33 @@ const PostsScreen = ()=>{
 
         console.log(user_id)
       } 
-
-      
-  const toggleSelectUser = (id) => {
-    
-    setSelectedUsers((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((userId) => userId !== id) 
-        : [...prevSelected, id] 
-    );
-    console.log(selectedUsers)
-   
-  };
-  let shareUrl = server_api_base_url + "share_as_message.php";
-
-  const shareAsMessage = async () => {
-  
-    try{
-      const res = await axios.post(shareUrl, {
-        user_id: user_id,
-        post_id: sharePost,
-        content: "post",
-        selectedUsers: selectedUsers
-      });
-      
-      console.log(res.data);
-    }catch(shareError){
-      console.log(shareError);
-    }
-
-    setVisible(false);
-    setSharePost("");
-    setSelectedUsers([]);
-  };
-
-  const ShareButton = async (post_id, content) => {
-    setVisible(true);
-    setSharePost(post_id);
-  }
-
-  const renderItem = ({ item }) => {
-    const [id, name, image] = item;
-    const isSelected = selectedUsers.includes(id);
-
-    return (
-      <TouchableOpacity
-        onPress={() => toggleSelectUser(id)}
-        className="items-center mr-4"
-      >
-        <View   className={`w-16 h-16 overflow-hidden rounded-full border-4 flex flex-row justify-center
-          ${
-            isSelected ? "border-blue-500" : "border-gray-200"
-          }`}
-        >
-        <Image
-          source={{ uri: `${server_api_base_url}/profilepictures/${image}` }}
-          className={`w-16 h-16 rounded-full border-2`}
-        />
-        </View>
-       
-        <Text className="mt-1 text-xs font-medium text-gray-800">{name}</Text>
-      </TouchableOpacity>
-    );
-  };
       
      
     return (
        <View className =" flex-1 bg-white">
         <View>
-
-          <Modal
-            visible={visible}
-            transparent
-            animationType="fade"
-            onRequestClose={() => setVisible(false)}
-          >
           
-
-            <View className="flex-1 justify-end bg-black/70">
-              <View className=" w-full">
-               <View className=" absolute bottom-0 w-auto left-0 right-0 bg-white rounded-t-3xl p-4 h-max ">
-                  <View className=" flex flex-row justify-between">
-                    <Text className=" font-bold text-xl">Share</Text>
-                    <TouchableOpacity
-                      onPress={() => setVisible(false)}
-                      className=" px-4 py-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold"><Ionicons name="close" size={24} color="black" /></Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View className=" my-2 mb-4 pb-2 border-b-2 border-gray-300">
-                  <FlatList
-                    data={users}
-                    horizontal
-                    keyExtractor={(item) => item[0]} // user_id
-                    renderItem={renderItem}
-                    showsHorizontalScrollIndicator={false}
-                  />
-
-                  </View>
-
-                  <TouchableOpacity className=" flex flex-row gap-2">
-                    <Feather name="bookmark" size={24} color="black" />
-                    <Text className=" font-semibold text-lg">Save</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity className=" flex flex-row gap-2 mt-2">
-                    <MaterialIcons name="ios-share" size={24} color="black" />
-                    <Text className=" font-semibold text-lg">More options</Text>
-                  </TouchableOpacity>
-
-                  {selectedUsers.length > 0 ? (
-                    <View className=" mt-4">
-                      <TouchableOpacity 
-                        className=" bg-blue-500 p-2 flex flex-row justify-center rounded-full" 
-                        onPress={()=> shareAsMessage()}
-                      >
-                        <Text className=" font-semibold text-lg text-white">Send</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <View className=" mt-4">
-                      <View className=" bg-gray-300 p-2 flex flex-row justify-center rounded-full">
-                        <Text className=" font-semibold text-lg text-gray-400">Send</Text>
-                      </View>
-                    </View>
-                  )}
-                  
-
-               </View>
-
-               
-                
-              </View>
-            </View>
-          </Modal>
-
         <View className="absolute top-0 left-0 right-0 z-10">
           <BlurView
             intensity={95}
             tint="light"
             className="w-full flex-row justify-between items-center px-4 pt-12 pb-4"
           >
-           <Text className="text-2xl font-bold text-black">Discover</Text>
+            {/* Gradient "Posts" Title */}
+            <MaskedView
+              maskElement={
+                <Text className="text-2xl font-bold text-black">Discover</Text>
+              }
+            >
+              <LinearGradient
+                colors={['#1C39BB', '#1877F2']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="h-8"
+              >
+                <Text className="text-2xl font-bold opacity-0">Discover</Text>
+              </LinearGradient>
+            </MaskedView>
 
             {/* Buttons */}
             <View className="flex-row space-x-2">
@@ -461,8 +293,6 @@ const PostsScreen = ()=>{
                 );
               }
 
-              
-
               // timeline posts
               const images = typeof item.images === 'string' ? JSON.parse(item.images) : [];
               const firstImage = images.length > 0 ? images[0].replace(/\\/g, '') : null;
@@ -481,8 +311,6 @@ const PostsScreen = ()=>{
               };
 
               datetime = date.toLocaleString('en-US', options);
-             
-              
 
               return (
                 <View className="border border-gray-100 rounded-2xl m-1 p-2">
@@ -517,101 +345,200 @@ const PostsScreen = ()=>{
                         className="w-full h-96 rounded-xl overflow-hidden"
                         
                       >
-                    
+                        <View className="flex flex-col justify-between h-full">
+                          <View className="flex flex-row rounded-full overflow-hidden justify-end">
+                         
+                          </View>
+
+                          <BlurView
+                                intensity={50}
+                                tint="light" className="flex-row items-center justify-between px-3 py-2">
+                            <TouchableOpacity onPress={() => toggleLike(item.id)} className="flex-row rounded-full overflow-hidden items-center space-x-1 ">
+                              <BlurView
+                                intensity={90}
+                                tint="light"
+                                className="flex-row space-x-4 rounded-full px-8 py-2"
+                              >
+                                
+                                <MaskedView
+                                  maskElement={
+                                    <View className="items-center justify-center">
+                                      <FontAwesome
+                                        name="heart"
+                                        size={24}
+                                        color={likedPosts[item.id] ? "#E91E63" : "black"} // pink if liked, black otherwise
+                                      />
+
+                                      {/* <Feather name="heart" size={24} color="black" /> */}
+                              
+                                    </View>
+                                  }
+                                >
+                                  <LinearGradient
+                                    colors={likedPosts[item.id] ? ['#bbb', '#1F75FE', '#ccc'] : ['#ccc', '#222', '#ccc']}
+                                    start={{ x: 0, y: 1 }}
+                                    end={{ x: 1, y: 0 }}
+                                    className="w-6 h-6"
+                                  />
+
+                                </MaskedView>
+
+                              </BlurView>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={() => OpenPost(item)} className="flex-row rounded-full overflow-hidden items-center space-x-1 ">
+                              <BlurView
+                                intensity={90}
+                                tint="light"
+                                className="flex-row space-x-4 rounded-full px-8 py-2"
+                              >
+                                
+                                <MaskedView
+                                  maskElement={
+                                    <View className="items-center justify-center">
+                                      {/* <FontAwesome name="heart" size={24} color="black" /> */}
+                                      <FontAwesome6 name="rectangle-list" size={24} color="black" />
+                                    </View>
+                                  }
+                                >
+                                  <LinearGradient
+                                    colors={['#ccc', '#000','#ccc']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    className="w-6 h-6"
+                                  />
+                                </MaskedView>
+
+                              </BlurView>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity className="flex-row rounded-full overflow-hidden items-center space-x-1 ">
+                              <BlurView
+                                intensity={90}
+                                tint="light"
+                                className="flex-row space-x-4 rounded-full px-8 py-2"
+                              >
+                                
+                                <MaskedView
+                                  maskElement={
+                                    <View className="items-center justify-center">
+                                     <Feather name="share" size={24} color="black" />
+                                    </View>
+                                  }
+                                >
+                                  <LinearGradient
+                                    colors={['#ccc', '#000','#ccc']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    className="w-6 h-6"
+                                  />
+                                </MaskedView>
+
+                              </BlurView>
+                            </TouchableOpacity>
+
+                          </BlurView>
+                        </View>
                       </ImageBackground>
                     ) : (
                      <View>
-               
+                     <View className="flex flex-col justify-between">
+                          <View className="flex flex-row rounded-full overflow-hidden justify-end">
+                         
+                          </View>
+
+                          <BlurView
+                                intensity={50}
+                                tint="light" className="flex-row items-center justify-between px-3 py-2">
+                            <TouchableOpacity onPress={() => toggleLike(item.id)} className="flex-row rounded-full overflow-hidden items-center space-x-1 ">
+                              <BlurView
+                                intensity={90}
+                                tint="light"
+                                className="flex-row space-x-4 rounded-full px-8 py-2"
+                              >
+                                
+                                <MaskedView
+                                  maskElement={
+                                    <View className="items-center justify-center">
+                                      <FontAwesome
+                                        name="heart"
+                                        size={24}
+                                        color={likedPosts[item.id] ? "#E91E63" : "black"} // pink if liked, black otherwise
+                                      />
+
+                                      {/* <Feather name="heart" size={24} color="black" /> */}
+                              
+                                    </View>
+                                  }
+                                >
+                                  <LinearGradient
+                                    colors={likedPosts[item.id] ? ['#bbb', '#1F75FE', '#ccc'] : ['#ccc', '#222', '#ccc']}
+                                    start={{ x: 0, y: 1 }}
+                                    end={{ x: 1, y: 0 }}
+                                    className="w-6 h-6"
+                                  />
+
+                                </MaskedView>
+
+                              </BlurView>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={() => OpenPost(item)} className="flex-row rounded-full overflow-hidden items-center space-x-1 ">
+                              <BlurView
+                                intensity={90}
+                                tint="light"
+                                className="flex-row space-x-4 rounded-full px-8 py-2"
+                              >
+                                
+                                <MaskedView
+                                  maskElement={
+                                    <View className="items-center justify-center">
+                                      {/* <FontAwesome name="heart" size={24} color="black" /> */}
+                                      <FontAwesome6 name="rectangle-list" size={24} color="black" />
+                                    </View>
+                                  }
+                                >
+                                  <LinearGradient
+                                    colors={['#ccc', '#000','#ccc']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    className="w-6 h-6"
+                                  />
+                                </MaskedView>
+
+                              </BlurView>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity className="flex-row rounded-full overflow-hidden items-center space-x-1 ">
+                              <BlurView
+                                intensity={90}
+                                tint="light"
+                                className="flex-row space-x-4 rounded-full px-8 py-2"
+                              >
+                                
+                                <MaskedView
+                                  maskElement={
+                                    <View className="items-center justify-center">
+                                     <Feather name="share" size={24} color="black" />
+                                    </View>
+                                  }
+                                >
+                                  <LinearGradient
+                                    colors={['#ccc', '#000','#ccc']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    className="w-6 h-6"
+                                  />
+                                </MaskedView>
+
+                              </BlurView>
+                            </TouchableOpacity>
+
+                          </BlurView>
+                        </View>
                      </View>
                      )}
 
-                      {/* <View className=" w-full">
-                        <View className=" w-3/5 overflow-scroll border-2 border-gray-300 bg-gray-100 p-1 flex flex-row rounded-full mt-1">
-                          <Image
-                            className="w-6 h-6 rounded-full border border-gray-400"
-                            source={{
-                              uri: `${server_api_base_url}/profilepictures/${item.pp}`,
-                            }}
-                          />
-                          <Text className=" px-2 pt-1 font-medium text-gray-500">You recently followed</Text>
-                        </View>
-                      </View> */}
-                      
-
-                    <View className=" mt-2 flex flex-row justify-between ">
-                        <TouchableOpacity 
-                          className=" flex flex-row justify-center p-2 rounded-full bg-red-100 " 
-                          onPress={() => toggleLike(item.id)}
-                        >
-                         
-                          
-                          {likedPosts[item.id] ? (
-                            <AntDesign name="heart" size={20} color="#F2003C" />
-                          ) : (
-                            <AntDesign name="hearto" size={20} color="#F2003C" />
-                          )}
-
-                          {item.likes > 0 ? (
-                            <View>
-                              {item.likes == 1 ? (
-                                <Text className=" font-semibold text-red-500 px-1">{item.likes} Like</Text>
-                              ) : (
-                                <Text className=" font-semibold text-red-500 px-1">{item.likes} Likes</Text>
-                              )}
-                            </View>
-                          ) : (
-                            <Text className=" font-semibold text-red-500"> 0 Likes</Text>
-                          )}
-                        </TouchableOpacity>
-
-
-
-                        <TouchableOpacity className=" flex flex-row p-2 rounded-full bg-purple-100 " onPress={() => OpenPost(item)}>
-                          <View  className=" ">
-                            <Ionicons name="chatbubble" size={20} color="#6050DC" />
-                          </View>
-                          {item.comments > 0 ? (
-                            <View>
-                              {item.comments > 100 ? (
-                                <Text className=" font-semibold text-purple-500 px-1">{item.comments}</Text>
-                              ) : (
-                                <View>
-                                  {item.comments == 1 ? (
-                                    <Text className=" font-semibold text-purple-500 px-1">{item.comments} Comment</Text>
-                                  ) : (
-                                    <Text className=" font-semibold text-purple-500 px-1">{item.comments} Comments</Text>
-                                  )}
-                                </View>
-                              )}
-                            </View>
-                          ) : (
-                            <Text className=" font-semibold text-purple-500 px-1">0 Comments</Text>
-                          )}
-                        </TouchableOpacity>
-
-
-
-
-                        <TouchableOpacity className=" flex flex-row p-2 rounded-full bg-gray-100 " onPress={() => {}}>
-                          <View  className=" ">
-                            <Feather name="eye" size={20} color="black" />
-                          </View>
-                          <Text className=" font-semibold text-gray-500 px-1">{item.views}</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => ShareButton(item.id - 1, item.text)} className=" flex flex-row p-2 rounded-full bg-gray-100 ">
-                          <View  className=" ">
-                            <Feather name="send" size={20} color="black" />
-                          </View>
-                          <Text className=" font-semibold text-gray-500 px-1">{item.shares}</Text>
-                        </TouchableOpacity>
-
-
-
-
-
-                        
-                    </View>
 
                   </View>
 

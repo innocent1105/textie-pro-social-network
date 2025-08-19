@@ -44,7 +44,7 @@ const AgeRange = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(null); 
   const [user_id , setUserId] = useState(null);
 
-  let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+  let server_api_base_url = "http://192.168.165.234/textiepro/apis/";
 
 
   const getToken = async () => {

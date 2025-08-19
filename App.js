@@ -3,6 +3,9 @@ import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import React, { useEffect, useRef } from "react";
+import * as Notifications from "expo-notifications";
+
 import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MessagesScreen from './screens/MessagesScreen';
@@ -24,15 +27,38 @@ import setAgeScreen from './screens/SetAgeScreen';
 import FollowingScreen from './screens/Following';
 import SwipedUsersScreen from './screens/SwipedUsers';
 import StoriesScreen from './screens/Stories';
-
-
+import NotificationsScreen from './screens/NotificationsScreen';
+import MapScreen from './screens/Geolocation';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import 'react-native-gesture-handler'; // must be first
-import 'react-native-reanimated'; // keep this early too
+import 'react-native-gesture-handler'; 
+import 'react-native-reanimated';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const navigationRef = useRef();
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const data = response.notification.request.content.data;
+        console.log("Notification tapped opeing:", data);
+
+        if (data.userId) {
+          navigationRef.current?.navigate("Notifications", {
+            userId: data.user_id ? data.user_id : data.other_user
+          });
+        }
+      }
+    );
+
+    return () => subscription.remove();
+  }, []);
+
+
+
+
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
@@ -57,6 +83,8 @@ export default function App() {
           <Stack.Screen name="Following" component={FollowingScreen} />
           <Stack.Screen name="Liked-users" component={SwipedUsersScreen} />
           <Stack.Screen name="Stories" component={StoriesScreen} />
+          <Stack.Screen name="Notifications" component={NotificationsScreen} />
+          <Stack.Screen name="Map" component={MapScreen} />
           <Stack.Screen
             name="Chat"
             component={MessagesScreen}

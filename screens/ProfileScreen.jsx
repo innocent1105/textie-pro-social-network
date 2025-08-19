@@ -21,7 +21,7 @@ const HomeScreen = ()=>{
     const [isLoggedIn, setIsLoggedIn] = useState(null); 
     const [user_id , setUserId] = useState(null);
 
-    let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.165.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
@@ -63,7 +63,7 @@ const HomeScreen = ()=>{
     const [occupation, setOccupation] = useState("");
 
     const [city, setCity] = useState(``);
-
+   
     const [fetchingData , setFetchData] = useState(true);
     const [myData, setMyData] = useState([]);
    
@@ -77,10 +77,10 @@ const HomeScreen = ()=>{
             request_type: "getUserData",
           });
       
-          const data = res.data[0]; // assuming res.data is an array with at least one item
+          const data = res.data[0]; 
           console.log(res.data);
       
-          await AsyncStorage.setItem("user_data", JSON.stringify(data)); // ✅ Save only the data[0] object
+          await AsyncStorage.setItem("user_data", JSON.stringify(data)); 
       
           setMyData(data);
           setUsername(data[1]);
@@ -88,6 +88,8 @@ const HomeScreen = ()=>{
           setEmail(data[3]);
           setphoneNumber(data[4]);
           setPP(`${server_api_base_url}profilepictures/${data[5]}`);
+          setCity(data[7]);
+          setDOB(data[8]);
           setFetchData(false);
         } catch (fetchError) {
           console.log("getUserData error:", fetchError);
@@ -106,6 +108,8 @@ const HomeScreen = ()=>{
             setEmail(data[3]);
             setphoneNumber(data[4]);
             setPP(`${server_api_base_url}profilepictures/${data[5]}`);
+            setCity(data[7]);
+            setDOB(data[8]); 
             setFetchData(false);
       
             console.log("Fetched user from AsyncStorage");
@@ -113,8 +117,7 @@ const HomeScreen = ()=>{
         } catch (fetchOfflineData) {
           console.log("AsyncStorage read error:", fetchOfflineData);
         }
-      
-        // Always try to refresh from server after loading local data
+
         await getUserData();
       };
       
@@ -238,7 +241,7 @@ const HomeScreen = ()=>{
                         </View>
                         <View className =" mb-4">
                             <Text className =" font-bold text-lg text-center text-blue-950">{username}</Text>
-                            <Text className =" font-bold text-sm text-center text-blue-950">23 years - Lives in Lusaka</Text>
+                            <Text className =" font-bold text-sm text-center text-blue-950">{dob} years - Lives in {city}.</Text>
                         </View>
                         <View className =" flex flex-row justify-center gap-8 p-2 ">
                             <TouchableOpacity className=" p-2" onPress={()=> {}}>

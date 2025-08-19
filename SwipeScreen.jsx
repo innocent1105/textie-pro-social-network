@@ -30,7 +30,7 @@ const TinderSwipe = ({}) => {
 const [isLoggedIn, setIsLoggedIn] = useState(null); 
 const [user_id , setUserId] = useState(null);
 
-let server_api_base_url = "http://192.168.228.234/textiepro/apis/";
+let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
 
 const getToken = async () => {
     try {
@@ -155,7 +155,7 @@ const scaleAnim = useRef(new Animated.Value(1)).current;
     console.log(User)
     navigation.navigate("Chat", { Chat : 
         {
-            "username" : User.username,
+            "username" : User.name,
             "userId" : User.user_id,
             "image" : User.image
         }
@@ -174,11 +174,11 @@ const scaleAnim = useRef(new Animated.Value(1)).current;
       >
         <View></View>
         <BlurView 
-          intensity={70}
+          intensity={75}
           tint="light"
           className =" rounded-t p-8" style={styles.cardOverlay}>
-          <Text className =" text-lg font-bold">{card.username}, {card.dob}</Text>
-          <Text className =" text-md text-gray-500">Lives in {card.city}</Text>
+          <Text className =" text-lg font-bold">{card.username}, {card.dob} years</Text>
+          <Text className =" text-md text-gray-800">Lives in {card.city}</Text>
           <View className=" mt-4 flex flex-row justify-between ">
           <TouchableWithoutFeedback className=' ' onPressIn={handlePressIn} onPressOut={handlePressOut}>
               <Animated.View style={[ { transform: [{ scale: scaleAnim }] }]} className=' border border-gray-200 rounded-full overflow-hidden shadow-md'>

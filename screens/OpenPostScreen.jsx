@@ -3,6 +3,7 @@ import {
   View,
   Text,
   TextInput,
+  Modal,
   Image,
   StyleSheet,
   ActivityIndicator,
@@ -17,9 +18,14 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import { RefreshControl } from 'react-native';
+
 
 const OpenPostScreen = ({ route }) => {
   let navigation = useNavigation();
+  const [refreshing, setRefreshing] = useState(false);
+
+  
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [user_id, setUserId] = useState(null);
 
@@ -34,16 +40,21 @@ const OpenPostScreen = ({ route }) => {
   const firstImage =
     images.length > 0 ? images[0].replace(/\\/g, "") : null;
 
-  let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+  let server_api_base_url = "http://192.168.165.234/textiepro/apis/";
 
   const [commentText, setcommentText] = useState("");
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(true);
 
-  // Load comments on mount
-  useEffect(() => {
+  const [isModalVisible, setModalVisible] = useState(false);
+
+// Load comments when user_id is ready
+useEffect(() => {
+  if (user_id) {
     LoadComments();
-  }, []);
+  }
+}, [user_id]);
+
 
   const Comment = async () => {
     if (!commentText.trim()) return; // avoid empty comments
@@ -149,13 +160,20 @@ const OpenPostScreen = ({ route }) => {
 
   useKeyboardStatus();
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+   
+    setRefreshing(false);
+  };
+
+
   return (
     <View className="flex-1 bg-white">
-      {/* Header */}
+
       <View>
         {CommentFixedHeader ? (
           <TouchableWithoutFeedback>
-            <View className="absolute top-72 py-4 pt-16 z-20 left-0 right-0 bg-white flex-row justify-between items-center px-4 border-b border-blue-300">
+            <View className="absolute border-b border-gray-300 bg-white w-full right-0 flex flex-row gap-2 mt-8 p-4">
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
                 className="mr-4 pt-1"
@@ -168,7 +186,7 @@ const OpenPostScreen = ({ route }) => {
             </View>
           </TouchableWithoutFeedback>
         ) : (
-          <View className="absolute border-b border-gray-300 bg-white w-full right-0 flex flex-row justify-between gap-2 mt-8 p-4">
+          <View className="absolute border-b border-gray-300 bg-white w-full right-0 flex flex-row gap-2 mt-8 p-4">
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               className="mr-4 pt-1"
@@ -181,15 +199,20 @@ const OpenPostScreen = ({ route }) => {
           </View>
         )}
 
-        {/* Content */}
+    
         <View className="mt-24 pt-4">
           <ScrollView
             className="bg-white"
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           >
-            {/* Post Info */}
-            <View className="mt-4">
-              <View className="flex flex-row justify-between px-2">
+
+
+      
+            <View className="">
+              <View className="flex flex-row justify-between px-4">
                 <View className="flex gap-2 flex-row w-3/5">
                   <Image
                     className="w-10 h-10 rounded-full"
@@ -215,7 +238,7 @@ const OpenPostScreen = ({ route }) => {
               <View className="mt-2">
                 {images.length > 0 ? (
                   <View>
-                    <Text className="pl-2 pb-2">{postText}</Text>
+                    <Text className="p-4 py-1">{postText}</Text>
                     <View className="h-96">
                       <Image
                         style={styles.post_image}
@@ -228,59 +251,54 @@ const OpenPostScreen = ({ route }) => {
                   </View>
                 ) : (
                   <View className="border-b border-gray-200 pb-4">
-                    <Text className="pl-4 pb-2">{postText}</Text>
+                    <Text className="p-4 py-1">{postText}</Text>
                   </View>
                 )}
               </View>
 
-              {/* Comments */}
-              <View className="mb-40 mt-2">
+
+
+              <View className="mt-4 mb-56 border-t border-gray-200 pt-4 px-3">
+                <Text className="font-bold text-lg text-gray-800 mb-4">Comments</Text>
+
                 {loadingComments ? (
-                  <View className="py-4">
-                    <ActivityIndicator color={"#808080"} />
-                  </View>
+                  <ActivityIndicator size="small" color="#555" />
                 ) : comments.length > 0 ? (
                   comments.map((item) => (
                     <View
                       key={item.comment_id}
-                      className="m-2 px-2 border-b border-gray-200 pb-2"
+                      className="flex-row items-start mb-4 border-b border-gray-100 pb-2"
                     >
-                      <View className="flex flex-row justify-between">
-                        <View className="flex gap-2 flex-row w-3/5">
-                          <Image
-                            className="w-8 h-8 rounded-full"
-                            source={{
-                              uri: `${server_api_base_url}profilepictures/${item.pp}`,
-                            }}
-                          />
-                          <View>
-                            <Text className="text-md font-bold text-gray-700">
-                              {item.fullname}
-                            </Text>
-                            <Text className="text-xs text-gray-400">
-                              @{item.username}
-                            </Text>
-                          </View>
-                        </View>
-                        <TouchableOpacity className="rounded-sm flex justify-center mr-2 mb-2">
-                          <MaterialCommunityIcons
-                            name="window-close"
-                            size={18}
-                            color="#999"
-                          />
-                        </TouchableOpacity>
+                     
+                      <Image
+                        source={{
+                          uri: `${server_api_base_url}profilepictures/${item.pp}`,
+                        }}
+                        className="w-10 h-10 rounded-full mr-3"
+                      />
+
+                      <View className="flex-1">
+                        <Text className="font-semibold text-gray-900">{item.username}</Text>
+                        <Text className="text-gray-800 mt-1">{item.comment}</Text>
+
+                        {/* Actions */}
+                        {/* <View className="flex-row mt-1 space-x-4">
+                          <Text className="text-sm text-gray-500">Like</Text>
+                          <Text className="text-sm text-gray-500">Reply</Text>
+                          <Text className="text-sm text-gray-400">{item.time}</Text>
+                        </View> */}
                       </View>
-                      <Text className="px-1 pb-1 text-gray-500">
-                        {item.comment}
-                      </Text>
                     </View>
                   ))
                 ) : (
-                  <Text className="text-center text-gray-400 py-4">
-                    No comments yet. Be the first!
+                  <Text className="text-gray-400 italic text-center mt-6">
+                    No comments yet. Be the first to comment!
                   </Text>
                 )}
               </View>
+
+
+           
             </View>
           </ScrollView>
         </View>

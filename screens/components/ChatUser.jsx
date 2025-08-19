@@ -3,8 +3,10 @@ import { View, Text, Image, TouchableOpacity, Vibration } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { showNotification } from "../notifications/show_";
 
-const server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+
+const server_api_base_url = "http://192.168.165.234/textiepro/apis/";
 
 const ChatUser = ({ id, username, image, time, message, type, status, sender }) => {
 
@@ -27,6 +29,7 @@ const ChatUser = ({ id, username, image, time, message, type, status, sender }) 
 
   const MessageStatusView = () => {
     if (!sender) {
+     
       if (status === "sent") {
         return (
           <View className="flex flex-row justify-end">
@@ -39,6 +42,9 @@ const ChatUser = ({ id, username, image, time, message, type, status, sender }) 
       return null;
     }
 
+   
+
+    
     let icon = null;
     if (status === "sent") {
       icon = <MaterialIcons name="check" size={14} color="gray" />;
@@ -66,11 +72,18 @@ const ChatUser = ({ id, username, image, time, message, type, status, sender }) 
           />
           <View className="w-full h-11 overflow-hidden">
             <Text className="pt-2 text-md font-medium text-gray-700">{username}</Text>
-            <Text className="text-xs w-3/4 text-gray-400 overflow-hidden">{message}</Text>
+            {message == "post" ? (
+              <View>{sender ? (
+                <Text className="text-xs w-3/4 text-gray-400 overflow-hidden">You shared a post</Text>
+              ) : (
+                <Text className="text-xs w-3/4 text-gray-400 overflow-hidden">{username} shared a post</Text>
+              )}</View>
+            ) : (
+              <Text className="text-xs w-3/4 text-gray-400 overflow-hidden">{message}</Text>
+            )}
           </View>
         </View>
 
-        {/* Right: Time and Status */}
         <View className="w-2/5 flex justify-end items-end">
           <Text className="pt-2 text-xs text-gray-400">{time}</Text>
           <MessageStatusView />

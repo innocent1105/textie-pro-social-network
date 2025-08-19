@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { RefreshControl } from 'react-native';
 
 
-let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+let server_api_base_url = "http://192.168.165.234/textiepro/apis/";
 
 
 const LikedUserScreen = ({ route })=>{
@@ -29,9 +29,10 @@ const LikedUserScreen = ({ route })=>{
 
     const [followed, setFollowed] = useState(false);
     const [loadingFollow, setLoadingFollow] = useState(true);
+    const [loadUserDet, setLoadUserDet] = useState(true);
 
     const checkIfFollowed = async () => {
-        if (!user_id) return; // wait until user_id is set
+        if (!user_id) return; 
     
         const followUrl = `${server_api_base_url}followed.php`;
         try {
@@ -57,12 +58,21 @@ const LikedUserScreen = ({ route })=>{
     };
     
       
-    
+    const [location, setLocation] = useState("");
+    const [age, setAge] = useState("");
 
     const getUserDetails = async ()=>{
-        const res = await axios.post(getPostsUrl, {
-            user_id : likedUserId 
+        const res = await axios.post(`${server_api_base_url}edit_profile.php`, {
+            user_id: user_id,
+            request_type: "getUserData",
         });
+
+        console.log(res.data);
+
+        setLocation(res.data[0][7]);
+        setAge(res.data[0][8]);
+
+        setLoadUserDet(false);
     }
     
 
@@ -109,6 +119,7 @@ const LikedUserScreen = ({ route })=>{
     useEffect(() => {
         if (user_id) {
             checkIfFollowed();
+            getUserDetails();
         }
     }, [user_id]);
     
@@ -263,7 +274,17 @@ const LikedUserScreen = ({ route })=>{
                         </View>
                         <View className =" mb-4">
                             <Text className =" font-bold text-lg text-center text-blue-950">{likedUserName}</Text>
-                            <Text className =" font-bold text-sm text-center text-blue-950">23 years - Lives in Lusaka</Text>
+                            {loadUserDet ? (
+                                <View className=" p-2 flex flex-row justify-center">
+                                    <ActivityIndicator color={"#bbb"}></ActivityIndicator>
+                                    <Text className=" text-gray-400"> loading...</Text>
+                                </View>
+                            ) : (
+                                <View>
+                                    <Text className =" font-bold text-sm text-center text-blue-950">Lives in {location}</Text>
+                                    <Text className =" font-bold text-sm text-center text-blue-950">{age} years</Text>
+                                </View>
+                            )}
                         </View>
                         <View className =" flex flex-row justify-center gap-4 p-2 ">
                             {loadingFollow ? (

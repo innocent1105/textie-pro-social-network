@@ -6,6 +6,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -53,9 +54,9 @@ const PostsBottomNav = () => {
 
       <Pressable
         className="p-4 rounded-md items-center"
-        onPress={() => goToScreen("Home")}
+        onPress={() => goToScreen("Map")}
       >
-        <MaterialCommunityIcons name="heart-plus" size={28} color="#002147" />
+        <FontAwesome5 name="map-marker-alt" size={28} color="#002147" />
       </Pressable>
 
       <Pressable

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Image, Touchable, Animated, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, ActivityIndicator, ImageBackground } from 'react-native';
+import { View, Text, Image, Touchable,Modal, Animated, TextInput, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, ActivityIndicator, ImageBackground } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import axios from 'axios';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Vibration } from 'react-native';
 // import Animated, { FadeInUp } from "react-native-reanimated";
 import { BlurView } from 'expo-blur';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 
@@ -30,7 +31,7 @@ const TinderSwipe = ({}) => {
 const [isLoggedIn, setIsLoggedIn] = useState(null); 
 const [user_id , setUserId] = useState(null);
 
-let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+let server_api_base_url = "http://192.168.165.234/textiepro/apis/";
 
 const getToken = async () => {
     try {
@@ -74,7 +75,33 @@ const getUserUrl = server_api_base_url + "swipe_algorithm.php";
 
 const scaleAnim = useRef(new Animated.Value(1)).current;
 
+const [visible, setVisible] = useState(false);
 
+
+const [paid, setPaid] = useState(false);
+const [processingPayment, setProcessingPayment] = useState(false);
+const [paymentComplete, setProcessComplete] = useState(false);
+
+const [amount, setAmount] = useState(90);
+const [plan, setPlan] = useState("Monthly");
+
+const [acc_number, setNumber] = useState("");
+const [network, setNetwork] = useState("mtn");
+
+const selectNetwork = (network) => {
+    setNetwork(network);
+}
+
+
+
+const selectPlan = (plan) => {
+  setPlan(plan);
+  if(plan == "Monthly"){
+    setAmount(90);
+  }else{
+    setAmount(27);
+  }
+}
 
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -151,15 +178,36 @@ const scaleAnim = useRef(new Animated.Value(1)).current;
     }).start();
   };
 
-  const OpenMessages = (User)=>{
-    console.log(User)
-    navigation.navigate("Chat", { Chat : 
-        {
-            "username" : User.username,
-            "userId" : User.user_id,
-            "image" : User.image
-        }
-    });
+  const OpenMessages = (User, paid)=>{
+    if(processingPayment){
+      console.log(processingPayment)
+      navigation.navigate("Chat", { Chat : 
+          {
+              "username" : User.username,
+              "userId" : User.user_id,
+              "image" : User.image
+          }
+      });
+    }else{
+      setVisible(true);
+    }
+  }
+
+  const [acc_error, setAccError] = useState(false);
+
+  const pay = ()=>{
+
+    console.log(acc_number.length)
+
+    if(acc_number.length < 8){
+      setAccError(true);
+    }else{
+      setTimeout(()=>{
+        setProcessComplete(true);
+      }, 2500)
+  
+      setProcessingPayment(true);
+    }
   }
   
 
@@ -178,7 +226,7 @@ const scaleAnim = useRef(new Animated.Value(1)).current;
           tint="light"
           className =" rounded-t p-8" style={styles.cardOverlay}>
           <Text className =" text-lg font-bold">{card.username}, {card.dob}</Text>
-          <Text className =" text-md text-gray-500">Lives in {card.city}</Text>
+          <Text className =" text-md text-gray-700">{card.city}</Text>
           <View className=" mt-4 flex flex-row justify-between ">
           <TouchableWithoutFeedback className=' ' onPressIn={handlePressIn} onPressOut={handlePressOut}>
               <Animated.View style={[ { transform: [{ scale: scaleAnim }] }]} className=' border border-gray-200 rounded-full overflow-hidden shadow-md'>
@@ -212,7 +260,7 @@ const scaleAnim = useRef(new Animated.Value(1)).current;
               </Animated.View>
             </TouchableWithoutFeedback>
 
-            <TouchableWithoutFeedback className=' ' onPress={()=> OpenMessages(card)} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+            <TouchableWithoutFeedback className=' ' onPress={()=> OpenMessages(card, paid)} onPressIn={handlePressIn} onPressOut={handlePressOut}>
               <Animated.View style={[ { transform: [{ scale: scaleAnim }] }]} className=' border border-gray-200 rounded-full overflow-hidden shadow-md'>
                 <BlurView 
                   intensity={85}
@@ -469,6 +517,295 @@ const scaleAnim = useRef(new Animated.Value(1)).current;
                 </TouchableOpacity>
             </View>
         </View>
+
+        <Modal
+            visible={visible}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setVisible(false)}
+          >
+            <View className="flex-1 justify-end bg-black/70">
+                {processingPayment ? (
+                  <View className='absolute bottom-0 w-auto left-0 right-0 bg-gray-200 rounded-t-3xl h-max '>
+                      <View className=" flex flex-row justify-between">
+                        {paymentComplete ? (
+                          <Text className=" font-bold text-xl text-green-700 p-4">Processing complete</Text>
+                        ) : (
+                          <Text className=" font-bold text-xl p-4">Processing Payment</Text>
+                        )}
+                        <TouchableOpacity
+                          onPress={() => setVisible(false)}
+                          className=" p-4 rounded-lg"
+                        >
+                          <Text className="text-white font-bold"><Ionicons name="close" size={24} color="black" /></Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {paymentComplete ? (
+                        <Text className=" px-4 text-gray-500">
+                          You have successfully purchased swipe credits of K{amount}.
+                        </Text>
+                      ) : (
+                        <Text className=" px-4 text-gray-500">
+                          Please wait as we process your payment.
+                        </Text>
+                      )}
+
+                   
+
+                      <View className=' py-10'>
+                          {paymentComplete ? (
+                            <View className=' flex flex-row justify-center'>
+                                <View className=' bg-green-50 border-4 border-green-300 rounded-full w-32 h-32 flex flex-col justify-center'>
+                                  <Text className=' text-center'>
+                                    <Ionicons name="checkmark" size={55} color="green" />
+                                  </Text>
+                                </View>
+
+                                
+                                
+                            </View>
+                           
+                          ) : (
+                            <ActivityIndicator color={"cornflowerblue"} size={55}></ActivityIndicator>
+                          )}
+                          
+
+                          {paymentComplete ? (
+                            <View className=' mt-10'>
+                              <View className=" my-4 mx-4">
+                                <TouchableOpacity 
+                                  className=" bg-gray-900 p-2 flex flex-row justify-center rounded-full" 
+                                  onPress={()=> {setPaid(true); setVisible(false); setProcessComplete(true);}}
+                                >
+                                  <Text className=" font-semibold text-lg text-white">Done</Text>
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          ) : (
+                            <View className=' mt-10'>
+                              <View className=" my-4 mx-4">
+                                <View 
+                                  className=" bg-gray-300 p-2 flex flex-row justify-center rounded-full" 
+                                >
+                                  <Text className=" font-semibold text-lg text-gray-400">Done</Text>
+                                </View>
+                              </View>
+                            </View>
+                          )}
+                      </View>
+
+                  </View>
+                ) : (
+                  <View className=" w-full">
+                    <View className=" absolute bottom-0 w-auto left-0 right-0 bg-gray-200 rounded-t-3xl h-max ">
+                        <View className=" flex flex-row justify-between">
+                          <Text className=" font-bold text-xl p-4">Payment Plan</Text>
+                          <TouchableOpacity
+                            onPress={() => setVisible(false)}
+                            className=" p-4 rounded-lg"
+                          >
+                            <Text className="text-white font-bold"><Ionicons name="close" size={24} color="black" /></Text>
+                          </TouchableOpacity>
+                        </View>
+
+                        <View className=" mb-4 pb-2 ">
+                          {/* <Text className=" px-4 text-gray-700 font-semibold">Select a payment plan</Text> */}
+                          <Text className=" px-4 text-gray-500">
+                            You have used up all your swipe credits, select a payment plan to purchase more.
+                          </Text>
+                        </View>
+
+                        <View className=' bg-white = rounded-t-3xl pt-2'>
+                          {/* <Text className=" font-bold text-xl p-4"></Text> */}
+
+                          <View className='  p-2 flex flex-row justify-between w-full'>
+                            <Text className=" px-4 text-gray-700 font-semibold text-xl">Amount to pay</Text>
+                            
+                            <Text className=" px-4 text-gray-700 font-semibold text-xl">K{amount}</Text>
+
+                          </View>
+
+                          {plan == "Monthly" ? (
+                            <View className=' px-4 flex flex-row justify-between'>
+                              <TouchableOpacity onPress={()=>selectPlan("Monthly")} className=' w-1/2 px-1'>
+                                <View className=' border-2 border-blue-200 rounded-xl bg-blue-50 p-4'>
+                                  <Text className=' text-lg font-bold w-full text-center text-blue-500'>Monthly</Text>
+                                </View>
+                              </TouchableOpacity>
+
+                              <TouchableOpacity onPress={()=>selectPlan("Weekly")} className=' w-1/2 px-1'>
+                                <View className=' border-2 border-gray-100 rounded-xl bg-gray-50 p-4'>
+                                  <Text className=' text-lg font-bold w-full text-center text-gray-500'>Weekly</Text>
+                                </View>
+                              </TouchableOpacity>
+                            </View>
+                          ) : (
+                            <View className=' px-4 flex flex-row justify-between'>
+                              <TouchableOpacity onPress={()=>selectPlan("Monthly")} className=' w-1/2 px-1'>
+                                <View className=' border-2 border-gray-100 rounded-xl bg-gray-50 p-4'>
+                                  <Text className=' text-lg font-bold w-full text-center text-gray-500'>Monthly</Text>
+                                </View>
+                              </TouchableOpacity>
+
+                              <TouchableOpacity onPress={()=>selectPlan("Weekly")} className=' w-1/2 px-1'>
+                                <View className=' border-2 border-blue-200 rounded-xl bg-blue-50 p-4'>
+                                  <Text className=' text-lg font-bold w-full text-center text-blue-500'>Weekly</Text>
+                                </View>
+                              </TouchableOpacity>
+                            </View>
+                          )}
+
+                          <View className=' p-2 mt-4'>
+                            <Text className=' text-md font-bold w-full text-gray-500 px-4'>Mobile Money Account</Text>
+                            <Text className=' text-sm w-full text-gray-400 px-4'>
+                              Select your mobile money account to recieve a comfirmation message
+                            </Text>
+
+                          </View>
+
+
+
+
+
+
+
+                          <View className=' px-4 flex flex-row justify-between'>
+                            {network == "mtn" ? (
+                              <TouchableOpacity onPress={()=> selectNetwork("mtn")} className=' w-4/12 px-1'>
+                                <View className=' border-2 border-orange-200 rounded-xl bg-orange-50 p-4'>
+                                  <Text className=' text-lg font-bold w-full text-center text-orange-400'>MTN</Text>
+                                </View>
+                              </TouchableOpacity>
+                            ) : (
+                              <TouchableOpacity onPress={()=>selectNetwork("mtn")} className=' w-4/12 px-1'>
+                                <View className=' border-2 border-gray-200 rounded-xl bg-gray-50 p-4'>
+                                  <Text className=' text-lg font-bold w-full text-center text-gray-400'>MTN</Text>
+                                </View>
+                              </TouchableOpacity>
+                            )}
+                            
+                            {network == "airtel" ? (
+                              <TouchableOpacity onPress={()=>selectNetwork("airtel")} className=' w-4/12 px-1'>
+                                <View className=' border-2 border-red-200 rounded-xl bg-red-50 p-4 '>
+                                  <Text className=' text-lg font-bold w-full text-center text-red-400'>Airtel</Text>
+                                </View>
+                              </TouchableOpacity>
+
+                            ) : (
+                              <TouchableOpacity onPress={()=>selectNetwork("airtel")} className=' w-4/12 px-1'>
+                                <View className=' border-2 border-gray-200 rounded-xl bg-gray-50 p-4 '>
+                                  <Text className=' text-lg font-bold w-full text-center text-gray-400'>Airtel</Text>
+                                </View>
+                              </TouchableOpacity>
+
+                            )}
+                            
+                            {network == "zamtel" ? (
+                              <TouchableOpacity onPress={()=>selectNetwork("zamtel")} className=' w-4/12 px-1'>
+                                <View className=' border-2 border-green-200 rounded-xl bg-green-50 p-4'>
+                                  <Text className=' text-lg font-bold w-full text-center text-green-500'>Zamtel</Text>
+                                </View>
+                              </TouchableOpacity>
+                            ) : (
+                              <TouchableOpacity onPress={()=>selectNetwork("zamtel")} className=' w-4/12 px-1'>
+                                <View className=' border-2 border-gray-200 rounded-xl bg-gray-50 p-4'>
+                                  <Text className=' text-lg font-bold w-full text-center text-gray-400'>Zamtel</Text>
+                                </View>
+                              </TouchableOpacity>
+                            )}
+                            
+                          </View>
+                            
+
+
+
+
+
+
+                          
+
+
+                            
+                          <View className=' p-2 mt-4'>
+                            <Text className=' text-md font-bold w-full text-gray-500 px-4'>Mobile Money Account</Text>
+                           {acc_error ? (
+                            <Text className=' text-sm w-full text-orange-400 px-4'>
+                              Enter a valid account number
+                            </Text>
+                           ) : (
+                            <Text className=' text-sm w-full text-gray-400 px-4'>
+                              Enter your account number
+                            </Text>
+                           )}
+                           
+
+                          </View>
+
+                          <View className=' p-2 px-4 flex flex-row'>
+                            <View className=' w-4/12 border-2 bg-gray-100 border-gray-200 rounded-xl p-2'>
+                              <Text className=' text-lg text-center font-bold w-full text-gray-500 px-4'>+260</Text>
+                            </View>
+
+                            <View className=' w-4/6 pl-1 '>
+                              <View className=' w-full border-2 bg-gray-100 border-gray-200 rounded-xl '>
+                                <View className=' py-1 w-full'>
+                                  {setAccError ? (
+                                    
+                                      <TextInput
+                                        value={acc_number}
+                                        onChangeText={setNumber}
+                                        placeholder="Enter account number"
+                                        className=" w-full px-4 py-2 font-medium text-gray-500 border-orange-300 text-base"
+                                      />
+                                 
+                                  ) : (
+                                    <TextInput
+                                      value={acc_number}
+                                      onChangeText={setNumber}
+                                      placeholder="Enter account number"
+                                      className=" w-full px-4 py-2 font-medium text-gray-500 border-gray-300 text-base"
+                                    />
+                                  )}
+                                </View>
+                              </View>
+                            </View>
+                            
+
+                          </View>
+
+
+
+                          <View className=" my-4 mx-4">
+                            <TouchableOpacity 
+                              className=" bg-blue-500 p-2 flex flex-row justify-center rounded-full" 
+                              onPress={()=> pay()}
+                            >
+                              <Text className=" font-semibold text-lg text-white">Proceed</Text>
+                            </TouchableOpacity>
+                          </View>
+                            
+                        </View>
+
+
+                        
+                        
+
+
+
+                    </View>
+
+                    
+                      
+                    </View>
+                )}
+           
+            </View>
+          </Modal>
+
+
+
+
       </View>
 
 

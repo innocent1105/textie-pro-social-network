@@ -36,6 +36,7 @@ import * as Location from "expo-location";
 import registerForPushNotificationsAsync from "./app_notifications";
 import * as Notifications from "expo-notifications";
 import {showNotification, getUserData} from "./notifications/show_";
+import MapView, { Marker } from "react-native-maps";
 
 
 
@@ -53,7 +54,7 @@ const vibrate = (x) => {
 
 
 
-const HomeScreen = () => {
+const MapScreen = () => {
   const navigation = useNavigation();
   const [user_id, setUserId] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(null);
@@ -461,7 +462,7 @@ const HomeScreen = () => {
 
       <BlurView intensity={75} tint="light" className="absolute w-full p-4 pb-0 z-10">
         <View className="flex flex-row justify-between pt-8">
-          <Text className="text-2xl font-bold">Messages</Text>
+          <Text className="text-2xl font-bold">Maps</Text>
           <View className=" flex flex-row">
             <TouchableOpacity onPress={() => navigation.navigate('Notifications')} className="mx-4 rounded-sm">
               <Feather name="bell" size={24} color="black" />
@@ -481,58 +482,35 @@ const HomeScreen = () => {
         </View>
       </BlurView>
 
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        className="pt-32 mb-32 px-2"
-      >
-        <TextInput
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Search"
-          className="bg-white rounded-full px-4 py-2 border border-gray-300 text-base mb-2"
-        />
-
-        {activeTab === "Chats" && renderChats()}
-
-        {/* {activeTab !== "Chats" && (
-          <View className="items-center justify-center mt-10">
-            <Text className="text-gray-400 font-semibold text-lg">
-              {activeTab} section is under construction.
-            </Text>
-          </View>
-        )} */}
-
-        {activeTab === "Suggested" && (
-          <View className="">
-            {users.length > 0 ? (
-              filteredUsers.map((user) => (
-                <View key={user[0]} className="border-b border-gray-50 pt-1">
-                  <ChatUser
-                    id={user[0]}
-                    username={user[1]}
-                    image={user[2]}
-                    time={user[3]}
-                    message={user[4]}
-                    type={user[5]}
-                    status={user[6]}
-                    sender={user[7]}
-                  />
-                </View>
-              ))
-            ) : (
-              <Text>No users found</Text>
+            // map here
+    <View className="flex-1 mt-40"> 
+        <MapView
+            style={{ flex: 1 }}
+            initialRegion={{
+            latitude: 37.78825,  // fallback coords
+            longitude: -122.4324,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+            }}
+            showsUserLocation={true}
+            followsUserLocation={true}
+        >
+            {location && (
+            <Marker
+                coordinate={{
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                }}
+                title="You are here"
+            />
             )}
-          </View>
-        )}
+        </MapView>
+    </View>
 
-       
-
-
-      </ScrollView>
 
       <BottomNav />
     </View>
   );
 };
 
-export default HomeScreen;
+export default MapScreen;

@@ -13,7 +13,7 @@ const LoginScreen = ()=>{
     return (
         <ImageBackground
             className=" bg-black"
-            source={require('../assets/images/models/model4.jpg')}
+            source={require('../assets/images/models/model1.jpg')}
             resizeMode="cover"
             style={{ flex: 1 }}
         >
@@ -35,7 +35,7 @@ const LoginScreen = ()=>{
             </View>
 
             <View className=" absolute bottom-28 w-full px-4">
-                <Pressable android_ripple={{ color: '#222' }} onPress={()=>{ navigation.navigate("MainLogin")}} className=" bg-gray-900 px-4 rounded-full text-center border p-4">
+                <Pressable android_ripple={{ color: '#222' }} onPress={()=>{ navigation.navigate("MainLogin")}} className=" bg-black px-4 rounded-full text-center border p-4">
                     <Text className=" font-semibold text-center text-white text-xl">Get Started</Text>
                 </Pressable>
             </View>

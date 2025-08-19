@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef} from "react";
-import { View, Text, Button, Pressable, TextArea, Animated,ImageBackground, TouchableWithoutFeedback , TextInput, Image, StyleSheet, ActivityIndicator,TouchableOpacity, ScrollView, Keyboard } from 'react-native';
+import { View, Text, Button, Pressable, TextArea,Modal, Animated,ImageBackground, TouchableWithoutFeedback , TextInput, Image, StyleSheet, ActivityIndicator,TouchableOpacity, ScrollView, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import BottomNav from "./components/BottomNav";
 import ChatUser from "./components/ChatUser";
@@ -21,7 +21,7 @@ const SwipedUsersScreen = ()=>{
     const [isLoggedIn, setIsLoggedIn] = useState(null); 
     const [user_id , setUserId] = useState(null);
 
-    let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.226.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
@@ -261,7 +261,7 @@ const SwipedUsersScreen = ()=>{
                         ) : (
                             <View className=" flex flex-row justify-between">
                                 <Text className =" font-bold p-4 text-gray-400">
-                                    You haven't followed anyone yet 
+                                    You haven't Liked anyone yet. 
                                 </Text>
                                 <Text onPress={()=> {navigation.navigate("Swipe")}} className =" font-bold p-4 text-gray-500">
                                     Open Swipes 

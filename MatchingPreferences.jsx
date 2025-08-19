@@ -84,7 +84,7 @@ const MatchingPref1 = () => {
     "Any 🤷‍♂️"
   ];
 
-  let server_api_base_url = "http://192.168.6.234/textiepro/apis/";
+  let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
   
   const [selected, setSelected] = useState(
     words.reduce((acc, word) => ({ ...acc, [word]: false }), {})

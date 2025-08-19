@@ -11,6 +11,12 @@ import axios from 'axios';
 const SignupScreen = ()=>{
     let navigation = useNavigation();
 
+
+    axios.get("http://192.168.226.234/textiepro/apis/index.php", { responseType: "text" })
+      .then(res => console.log("✅ Got response:", res.data))
+      .catch(err => console.log("❌ Error:", err.message, err));
+
+
     let [email, setEmail] = useState('');
     let [phone, setPhone] = useState('');
     let [password, setPassword] = useState('');
@@ -21,9 +27,9 @@ const SignupScreen = ()=>{
 
     const sendData = async (email, password, phone_number) => {
         setIsLoadingSignup(true);
-
+        console.log("sending")
         try {
-          const res = await axios.post('http://192.168.228.234/textiepro/apis/index.php', {
+          const res = await axios.post('http://192.168.226.234/textiepro/apis/index.php', {
             email: email,
             phone : phone_number,
             username : username,
@@ -53,7 +59,7 @@ const SignupScreen = ()=>{
 
           setIsLoadingSignup(false);
         } catch (err) {
-          console.error(err.message);
+          console.error("some error : ", err.message);
         }
     };
 
@@ -95,7 +101,7 @@ const SignupScreen = ()=>{
   
     return (
         <ImageBackground
-          source={require('../assets/images/models/model4.jpg')} 
+          source={require('../assets/images/loginbg.jpg')} 
           resizeMode="cover"
           style={{ flex: 1 }}
         >

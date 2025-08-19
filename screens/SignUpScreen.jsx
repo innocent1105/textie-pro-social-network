@@ -1,9 +1,10 @@
 import React, { useEffect, useState} from "react";
-import { View, TextInput, Button, Text, ActivityIndicator, Switch, ScrollView,KeyboardAvoidingView, Platform, ImageBackground, Pressable  } from 'react-native';
+import { View, TextInput, Button, Text, ActivityIndicator, Switch, ScrollView,KeyboardAvoidingView, Platform, ImageBackground, Pressable, TouchableOpacity  } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
+
 
 // ipaddress :  192.168.112.234
 // let LoggedIn = false;
@@ -16,6 +17,12 @@ const SignupScreen = ()=>{
     let [password, setPassword] = useState('');
     let [username, setUsername] = useState('');
 
+    let [gender, setGender] = useState("male");
+
+    const setUserGender = (gender) => {
+      setGender(gender);
+    }
+ 
     let [formError, setFormError] = useState(false);
     let [backendResponse, setBResponse] = useState('');
 
@@ -23,10 +30,11 @@ const SignupScreen = ()=>{
         setIsLoadingSignup(true);
 
         try {
-          const res = await axios.post('http://192.168.6.234/textiepro/apis/index.php', {
+          const res = await axios.post('http://192.168.165.234/textiepro/apis/index.php', {
             email: email,
             phone : phone_number,
             username : username,
+            gender : gender,
             password: password
           });
 
@@ -59,17 +67,12 @@ const SignupScreen = ()=>{
 
 
 
-    // loading
-    
-    const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(previous => !previous);
 
     const [isLoadingSignup, setIsLoadingSignup] = useState(false);
 
     const handleSubmit = () => {
       setIsLoadingSignup(true);
   
-      // Simulate async signup (e.g., API call)
       setTimeout(() => {
         setIsLoadingSignup(false);
         alert('Signup complete for ' + email);
@@ -95,7 +98,7 @@ const SignupScreen = ()=>{
   
     return (
         <ImageBackground
-          source={require('../assets/images/loginbg.jpg')} 
+          source={require('../assets/images/models/model4.jpg')} 
           resizeMode="cover"
           style={{ flex: 1 }}
         >
@@ -158,6 +161,41 @@ const SignupScreen = ()=>{
                     className="border border-gray-200 text-gray-800 bg-gray-50 p-4 rounded-xl"
                     placeholderTextColor="#9CA3AF"
                   />
+
+                    {gender === "male" ? (
+                      <View className=" flex flex-row justify-between">
+                        <View className=" w-1/2 pr-1">
+                          <TouchableOpacity onPress={()=>setUserGender("male")} className=" w-full border border-blue-500 text-gray-800 bg-blue-50 p-4 rounded-xl flex flex-row justify-between">
+                            <Text className="  w-full text-center text-blue-500">Male</Text>
+                          </TouchableOpacity>
+                        </View>
+
+                        <View className=" w-1/2 pl-1">
+                          <TouchableOpacity onPress={()=>setUserGender("female")}  className=" w-full border border-gray-200 text-gray-800 bg-gray-50 p-4 rounded-xl flex flex-row justify-between">
+                            <Text className="  w-full text-center">Female</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ) : (
+                      <View className=" flex flex-row justify-between">
+                    
+                        <View className=" w-1/2 pr-1">
+                          <TouchableOpacity onPress={()=>setUserGender("male")} className=" w-full border border-gray-200 text-gray-800 bg-gray-50 p-4 rounded-xl flex flex-row justify-between">
+                            <Text className="  w-full text-center">Male</Text>
+                          </TouchableOpacity>
+                        </View>
+
+                        <View className=" w-1/2 pr-1">
+                          <TouchableOpacity onPress={()=>setUserGender("male")}  className=" w-full border border-blue-500 text-gray-800 bg-blue-50 p-4 rounded-xl flex flex-row justify-between">
+                            <Text className="  w-full text-center text-blue-500">Female</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    )}
+
+
+
+
 
                   <View className="flex-row items-center space-x-2">
                     <Text className="text-gray-500 text-sm">

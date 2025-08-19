@@ -21,7 +21,7 @@ const HomeScreen = ()=>{
     const [isLoggedIn, setIsLoggedIn] = useState(null); 
     const [user_id , setUserId] = useState(null);
 
-    let server_api_base_url = "http://192.168.228.234/textiepro/apis/";
+    let server_api_base_url = "http://192.168.141.234/textiepro/apis/";
 
     const getToken = async () => {
         try {
@@ -105,6 +105,8 @@ const HomeScreen = ()=>{
             setFullname(data[2]);
             setEmail(data[3]);
             setphoneNumber(data[4]);
+            setDOB(data[7]);
+            setCity(data[8]);
             setPP(`${server_api_base_url}profilepictures/${data[5]}`);
             setFetchData(false);
       
@@ -238,7 +240,7 @@ const HomeScreen = ()=>{
                         </View>
                         <View className =" mb-4">
                             <Text className =" font-bold text-lg text-center text-blue-950">{username}</Text>
-                            <Text className =" font-bold text-sm text-center text-blue-950">23 years - Lives in Lusaka</Text>
+                            <Text className =" font-bold text-sm text-center text-blue-950">{dob} years - Lives in Lusaka</Text>
                         </View>
                         <View className =" flex flex-row justify-center gap-8 p-2 ">
                             <TouchableOpacity className=" p-2" onPress={()=> {}}>
